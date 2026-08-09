@@ -81,5 +81,91 @@
     "prerelease": false,
     "asset": "svtplay-install.elf",
     "version": "v0.2"
+  },
+  "PS5 BAR Tool - Info": {
+    "repo": "c0w-ar/ps5-bar-tool",
+    "published": true,
+    "release_tag": "v0.3",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "prerelease": false,
+    "asset": "ps5-bar-tool_info.elf",
+    "version": "v0.3"
+  },
+  "PS5 BAR Tool - Main Segments": {
+    "repo": "c0w-ar/ps5-bar-tool",
+    "published": true,
+    "release_tag": "v0.3",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "prerelease": false,
+    "asset": "ps5-bar-tool_dump_main_segments.elf",
+    "version": "v0.3"
+  },
+  "PS5 BAR Tool - Full Dump": {
+    "repo": "c0w-ar/ps5-bar-tool",
+    "published": true,
+    "release_tag": "v0.3",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "prerelease": false,
+    "asset": "ps5-bar-tool_dump_all.elf",
+    "version": "v0.3"
+  },
+  "PS5 BAR Tool - Save Data": {
+    "repo": "c0w-ar/ps5-bar-tool",
+    "published": false,
+    "release_tag": "v0.3",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "prerelease": false,
+    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
+  },
+  "Ghostcontrol": {
+    "repo": "thatboialex/ps5-payload-source",
+    "published": false,
+    "upstream_code_repo": "FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher",
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
+    "prerelease": false,
+    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
+  },
+  "RESTORE_PM": {
+    "repo": "KINGDKAK/RESTORE_PM",
+    "published": true,
+    "release_tag": "v1.0",
+    "release_url": "https://github.com/KINGDKAK/RESTORE_PM/releases/tag/v1.0",
+    "prerelease": false,
+    "asset": "RESTORE_PM.elf",
+    "version": "v1.0"
+  },
+  "ProsperoPlayer": {
+    "repo": "thatboialex/ps5-payload-source",
+    "published": false,
+    "upstream_code_repo": "KINGDKAK/ProsperoPlayer",
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
+    "prerelease": false,
+    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
+  },
+  "RetroArch PS5": {
+    "repo": "tsuramatsu1/retroarch",
+    "published": false,
+    "release_tag": "latest",
+    "release_url": "https://github.com/tsuramatsu1/retroarch/releases/tag/latest",
+    "prerelease": false,
+    "tracked_only": true,
+    "assets": [
+      "RetroArch-PS5.zip"
+    ],
+    "reason": "Upstream ships RetroArch-PS5.zip containing retroarch.elf plus required cores, assets and configuration. A standalone ELF entry would be incomplete."
+  },
+  "JTPlay": {
+    "repo": "ps5-payload-dev/jtplay",
+    "published": false,
+    "release_tag": "v0.2",
+    "release_url": "https://github.com/ps5-payload-dev/jtplay/releases/tag/v0.2",
+    "prerelease": true,
+    "tracked_only": true,
+    "assets": [
+      "JTPlay.zip"
+    ],
+    "reason": "Upstream ships JTPlay.zip containing the executable plus required assets, fonts, plugins and CA bundle. It is a Homebrew Launcher package rather than a standalone PLDMGR payload."
   }
 }

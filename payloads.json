@@ -72,6 +72,42 @@
       "version": "v0.2",
       "category": "Media",
       "checksum": "5bdf25142512f25dc6269bd7c90a914001fcef5e731125a74aa23c1a8d91810f"
+    },
+    {
+      "name": "PS5 BAR Tool - Info",
+      "filename": "ps5-bar-tool_info.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_info.elf",
+      "description": "Parses PS5 Backup and Restore archive information and logs results locally and remotely.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "d599494640529779c4fb2b08f06946c576230c848b88e530bc7b5e33926eb4ce"
+    },
+    {
+      "name": "PS5 BAR Tool - Main Segments",
+      "filename": "ps5-bar-tool_dump_main_segments.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_dump_main_segments.elf",
+      "description": "Parses a PS5 Backup and Restore archive and dumps special/main embedded segments.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "2c3b053c206cd39e778f2fc032637bcd69cab4ac58a15ffac462dddcb523642c"
+    },
+    {
+      "name": "PS5 BAR Tool - Full Dump",
+      "filename": "ps5-bar-tool_dump_all.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_dump_all.elf",
+      "description": "Dumps supported embedded files from a PS5 Backup and Restore archive to USB.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "d4ce2a9d07f7ece1908523f2390e2d846c4f1ed9c1d5580e489532570b20e6ee"
+    },
+    {
+      "name": "RESTORE_PM",
+      "filename": "RESTORE_PM.elf",
+      "url": "https://github.com/KINGDKAK/RESTORE_PM/releases/download/v1.0/RESTORE_PM.elf",
+      "description": "Restores the Payload Manager tile on the PS5 home screen if it is missing or no longer opens.",
+      "version": "v1.0",
+      "category": "System & Jailbreak",
+      "checksum": "ecdcbccdf1b4595e4e1b750aa9a3a7f4c7f9682ab5258776494928399bc24d64"
     }
   ]
 }
