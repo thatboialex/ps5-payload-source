@@ -91,6 +91,97 @@
       "category": "Media",
       "publish_if_compatible": true,
       "release_mode": "latest_any"
+    },
+    {
+      "name": "PS5 BAR Tool - Info",
+      "repo": "c0w-ar/ps5-bar-tool",
+      "exact_assets": ["ps5-bar-tool_info.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "Parses PS5 Backup and Restore archive information and logs results locally and remotely.",
+      "category": "Backup & Recovery",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "PS5 BAR Tool - Main Segments",
+      "repo": "c0w-ar/ps5-bar-tool",
+      "exact_assets": ["ps5-bar-tool_dump_main_segments.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "Parses a PS5 Backup and Restore archive and dumps special/main embedded segments.",
+      "category": "Backup & Recovery",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "PS5 BAR Tool - Full Dump",
+      "repo": "c0w-ar/ps5-bar-tool",
+      "exact_assets": ["ps5-bar-tool_dump_all.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "Dumps supported embedded files from a PS5 Backup and Restore archive to USB.",
+      "category": "Backup & Recovery",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "PS5 BAR Tool - Save Data",
+      "repo": "c0w-ar/ps5-bar-tool",
+      "exact_assets": ["ps5-bar-tool_dump_savedata.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "Parses PS5 Backup and Restore archives and dumps PS4/PS5 save-data files.",
+      "category": "Backup & Recovery",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "Ghostcontrol",
+      "repo": "thatboialex/ps5-payload-source",
+      "exact_assets": ["ghost-control-x10-ds4.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "Uses supported third-party USB controllers on PS5 by translating USB HID input into a virtual DualSense.",
+      "category": "Controllers & Input",
+      "publish_if_compatible": true,
+      "version_mode": "asset_updated_at",
+      "upstream_code_repo": "FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher"
+    },
+    {
+      "name": "RESTORE_PM",
+      "repo": "KINGDKAK/RESTORE_PM",
+      "exact_assets": ["RESTORE_PM.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "Restores the Payload Manager tile on the PS5 home screen if it is missing or no longer opens.",
+      "category": "System & Jailbreak",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "ProsperoPlayer",
+      "repo": "thatboialex/ps5-payload-source",
+      "exact_assets": ["PS5MediaPlayerPRO.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "PS5 homebrew media player for USB video, music and images with subtitles, resume playback and media controls.",
+      "category": "Media",
+      "publish_if_compatible": true,
+      "version_mode": "asset_updated_at",
+      "upstream_code_repo": "KINGDKAK/ProsperoPlayer"
+    },
+    {
+      "name": "RetroArch PS5",
+      "repo": "tsuramatsu1/retroarch",
+      "exact_assets": [],
+      "allowed_extensions": [".zip"],
+      "description": "RetroArch homebrew bundle for PS5 with 33 libretro cores. Requires its full RetroArch-PS5.zip folder bundle and cannot run as a standalone PLDMGR payload.",
+      "category": "Emulators",
+      "publish_if_compatible": false,
+      "track_only": true,
+      "release_mode": "latest_any",
+      "track_only_reason": "Upstream ships RetroArch-PS5.zip containing retroarch.elf plus required cores, assets and configuration. A standalone ELF entry would be incomplete."
+    },
+    {
+      "name": "JTPlay",
+      "repo": "ps5-payload-dev/jtplay",
+      "exact_assets": [],
+      "allowed_extensions": [".zip"],
+      "description": "Native PS5 audio/video player with local filesystem, UPnP/DLNA and JavaScript media-provider plugins.",
+      "category": "Media",
+      "publish_if_compatible": false,
+      "track_only": true,
+      "release_mode": "latest_any",
+      "track_only_reason": "Upstream ships JTPlay.zip containing the executable plus required assets, fonts, plugins and CA bundle. It is a Homebrew Launcher package rather than a standalone PLDMGR payload."
     }
   ]
 }
