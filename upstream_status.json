@@ -2,7 +2,8 @@
   "CheatRunner": {
     "repo": "notmaj0r/CheatRunner",
     "published": true,
-    "note": "Seeded with GitHub's stable latest-release asset URL. The workflow resolves exact release metadata on first run."
+    "release_tag": "v0.17",
+    "asset": "CheatRunner.elf"
   },
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
@@ -13,15 +14,16 @@
   "Kylin Core": {
     "repo": "aydencharles/kylin-core-release",
     "published": true,
-    "note": "Seeded with GitHub's stable latest-release asset URL. The workflow resolves exact release metadata on first run."
+    "release_tag": "v1.3.1-community-lite",
+    "asset": "kylin-core.elf"
   },
   "WBrowser": {
     "repo": "ps5xploit/WBrowser",
     "published": false,
-    "reason": "Upstream currently documents PKG installers rather than a PLDMGR-loadable .elf/.bin/.lua payload.",
     "manual_package_links": [
       "https://www.mediafire.com/file/w63j8iaz80jgt4k/InternetBrowser-PS5.pkg/file",
       "https://www.mediafire.com/file/lbyvaxn64w97rc1/InternetBrowser-PS5M.pkg/file"
-    ]
+    ],
+    "reason": "GitHub API HTTP 404 while checking latest release."
   }
 }
