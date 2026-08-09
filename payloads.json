@@ -1,0 +1,27 @@
+{
+  "name": "Jason's PS5 GitHub Payloads",
+  "payloads": [
+    {
+      "name": "CheatRunner",
+      "filename": "CheatRunner.elf",
+      "url": "https://github.com/notmaj0r/CheatRunner/releases/latest/download/CheatRunner.elf",
+      "description": "Web-based PS5 cheat trainer for already-jailbroken PS5 consoles.",
+      "category": "Cheats & Trainers"
+    },
+    {
+      "name": "Pegasus DL",
+      "filename": "pegasus_dl.elf",
+      "url": "https://github.com/pegasus-ps5/pegasus-dl/releases/latest/download/pegasus_dl.elf",
+      "description": "PS5 payload for direct package downloading and local file management through a web interface.",
+      "version": "v1.7.0",
+      "category": "Utilities & Tools"
+    },
+    {
+      "name": "Kylin Core",
+      "filename": "kylin-core.elf",
+      "url": "https://github.com/aydencharles/kylin-core-release/releases/latest/download/kylin-core.elf",
+      "description": "PS5 homebrew cheat loader and real-time game modifier.",
+      "category": "Cheats & Trainers"
+    }
+  ]
+}
