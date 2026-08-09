@@ -49,12 +49,12 @@
     "asset": "kura-loader.elf"
   },
   "fetchpkg": {
-    "repo": "aldostools/PS5-Payloads",
+    "repo": "thatboialex/ps5-payload-source",
     "published": false,
     "reason": "GitHub API HTTP 404 while checking latest release."
   },
   "pkg_install": {
-    "repo": "aldostools/PS5-Payloads",
+    "repo": "thatboialex/ps5-payload-source",
     "published": false,
     "reason": "GitHub API HTTP 404 while checking latest release."
   },
