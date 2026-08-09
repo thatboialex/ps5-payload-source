@@ -129,7 +129,7 @@
     {
       "name": "ProsperoPlayer",
       "repo": "KINGDKAK/ProsperoPlayer",
-      "exact_assets": ["PS5MediaPlayerPRO.elf"],
+      "exact_assets": ["ProsperoPlayer_MediaLauncher.elf"],
       "allowed_extensions": [".elf"],
       "description": "PS5 homebrew media player for USB video, music and images with subtitles, resume playback and media controls.",
       "category": "Media",
