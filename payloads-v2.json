@@ -1,5 +1,5 @@
 {
-  "name": "Jason's PS5 GitHub Payloads v2",
+  "name": "Custom PS5 GitHub Payloads",
   "payloads": [
     {
       "name": "CheatRunner",
@@ -34,7 +34,7 @@
       "url": "https://github.com/StonedModder/Ghostpad/releases/download/v1.0.0/ghostpad.elf",
       "description": "PS5 virtual DualSense payload for remote controller input over LAN, used with the Ghostpad PC app.",
       "version": "v1.0.0",
-      "category": "Utilities & Tools",
+      "category": "Controllers & Input",
       "checksum": "94d43a8db7ec9df6e18f0a0da25aac0f60e1a0b14d35bfff261f6f5cdeabdba1"
     },
     {
