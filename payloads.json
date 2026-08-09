@@ -49,18 +49,18 @@
     {
       "name": "fetchpkg",
       "filename": "fetchpkg.elf",
-      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/pldmgr-elf-downloads/fetchpkg.elf",
+      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/source-built-payloads/fetchpkg.elf",
       "description": "Downloads official Sony PS4/PS5 package updates from JSON manifests. Automatically built from ps5-payload-dev/fetchpkg source.",
-      "version": "2026-08-09T16:07:07Z",
+      "version": "2026-08-09T15:33:19Z",
       "category": "Packages & Downloads",
       "checksum": "ca47bef64ab66380d56573ee30a3655fc7c3bb02e1ddd8cde2ffcbe4e0afac67"
     },
     {
       "name": "pkg_install",
       "filename": "pkg_install.elf",
-      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/pldmgr-elf-downloads/pkg_install.elf",
+      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/source-built-payloads/pkg_install.elf",
       "description": "PS5 package-install helper payload. Automatically built from ps5-payload-dev/shsrv's pkg_install source.",
-      "version": "2026-08-09T16:07:07Z",
+      "version": "2026-08-09T15:33:18Z",
       "category": "Packages & Downloads",
       "checksum": "a372966792449ded73db6f159efe8cdd2ecbc3af75b480216e11899d7b1aaa11"
     },
@@ -108,6 +108,15 @@
       "version": "v0.3",
       "category": "Backup & Recovery",
       "checksum": "55203af40dac4a5b72f8f7350987104ae9a3ac59d4bec45638d6dfec873131b2"
+    },
+    {
+      "name": "Ghostcontrol",
+      "filename": "ghost-control-x10-ds4.elf",
+      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/source-built-payloads/ghost-control-x10-ds4.elf",
+      "description": "Uses supported third-party USB controllers on PS5 by translating USB HID input into a virtual DualSense.",
+      "version": "2026-08-09T16:08:56Z",
+      "category": "Controllers & Input",
+      "checksum": "9ef5718ff0b6fa1b0b90a5d7108335d7852458919dd1deae30968b43fb39a5bb"
     },
     {
       "name": "RESTORE_PM",

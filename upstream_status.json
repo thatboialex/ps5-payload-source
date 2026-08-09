@@ -57,21 +57,21 @@
     "repo": "thatboialex/ps5-payload-source",
     "published": true,
     "upstream_code_repo": "ps5-payload-dev/fetchpkg",
-    "release_tag": "pldmgr-elf-downloads",
-    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads",
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
     "prerelease": false,
     "asset": "fetchpkg.elf",
-    "version": "2026-08-09T16:07:07Z"
+    "version": "2026-08-09T15:33:19Z"
   },
   "pkg_install": {
     "repo": "thatboialex/ps5-payload-source",
     "published": true,
     "upstream_code_repo": "ps5-payload-dev/shsrv",
-    "release_tag": "pldmgr-elf-downloads",
-    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads",
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
     "prerelease": false,
     "asset": "pkg_install.elf",
-    "version": "2026-08-09T16:07:07Z"
+    "version": "2026-08-09T15:33:18Z"
   },
   "SVT Play Installer": {
     "repo": "ps5-payload-dev/svtplay",
@@ -120,12 +120,13 @@
   },
   "Ghostcontrol": {
     "repo": "thatboialex/ps5-payload-source",
-    "published": false,
+    "published": true,
     "upstream_code_repo": "FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher",
-    "release_tag": "pldmgr-elf-downloads",
-    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads",
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
     "prerelease": false,
-    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the selected GitHub release."
+    "asset": "ghost-control-x10-ds4.elf",
+    "version": "2026-08-09T16:08:56Z"
   },
   "RESTORE_PM": {
     "repo": "KINGDKAK/RESTORE_PM",
@@ -140,8 +141,8 @@
     "repo": "thatboialex/ps5-payload-source",
     "published": false,
     "upstream_code_repo": "KINGDKAK/ProsperoPlayer",
-    "release_tag": "pldmgr-elf-downloads",
-    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads",
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
     "prerelease": false,
     "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the selected GitHub release."
   },
