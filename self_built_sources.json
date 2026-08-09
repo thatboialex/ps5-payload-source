@@ -1,0 +1,10 @@
+{
+  "fetchpkg": {
+    "repo": "ps5-payload-dev/fetchpkg",
+    "commit": ""
+  },
+  "pkg_install": {
+    "repo": "ps5-payload-dev/shsrv",
+    "commit": ""
+  }
+}
