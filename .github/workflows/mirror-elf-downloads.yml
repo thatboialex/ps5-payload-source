@@ -50,7 +50,7 @@ jobs:
 
               req = urllib.request.Request(
                   url,
-                  headers={'User-Agent': 'ps5-payload-source-mirror/1.1'},
+                  headers={'User-Agent': 'ps5-payload-source-mirror/1.2'},
               )
               with urllib.request.urlopen(req, timeout=120) as response:
                   data = response.read()
@@ -72,7 +72,7 @@ jobs:
           print(f'Mirrored {len(sums)} ELF files.')
           PY
 
-      - name: Publish downloadable ELF mirror release
+      - name: Publish exact downloadable ELF mirror release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -84,9 +84,20 @@ jobs:
               --title "PLDMGR ELF Downloads" \
               --notes "Verified mirror of every loadable ELF currently listed in payloads.json. Assets are refreshed automatically and validated against the catalog SHA-256 checksums before upload."
           fi
+
+          # Remove ELF assets that no longer exist in payloads.json so the release
+          # is an exact mirror rather than accumulating stale downloads.
+          while IFS= read -r asset; do
+            [ -z "$asset" ] && continue
+            if [[ "$asset" == *.elf && ! -f "dist/$asset" ]]; then
+              echo "Deleting stale release asset: $asset"
+              gh release delete-asset "$TAG" "$asset" --yes
+            fi
+          done < <(gh release view "$TAG" --json assets --jq '.assets[].name')
+
           gh release upload "$TAG" dist/*.elf dist/SHA256SUMS.txt --clobber
 
-      - name: Verify release asset count
+      - name: Verify exact release asset count
         id: verify
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,7 +112,7 @@ jobs:
           ACTUAL=$(gh release view pldmgr-elf-downloads --json assets --jq '[.assets[] | select(.name | endswith(".elf"))] | length')
           echo "Expected ELF assets: $EXPECTED"
           echo "Release ELF assets:  $ACTUAL"
-          test "$ACTUAL" -ge "$EXPECTED"
+          test "$ACTUAL" -eq "$EXPECTED"
           echo "expected=$EXPECTED" >> "$GITHUB_OUTPUT"
           echo "actual=$ACTUAL" >> "$GITHUB_OUTPUT"
 
