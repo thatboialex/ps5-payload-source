@@ -53,26 +53,6 @@
     "asset": "kura-loader.elf",
     "version": "v1.6.25"
   },
-  "fetchpkg": {
-    "repo": "thatboialex/ps5-payload-source",
-    "published": true,
-    "upstream_code_repo": "ps5-payload-dev/fetchpkg",
-    "release_tag": "source-built-payloads",
-    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
-    "prerelease": false,
-    "asset": "fetchpkg.elf",
-    "version": "2026-08-09T15:33:19Z"
-  },
-  "pkg_install": {
-    "repo": "thatboialex/ps5-payload-source",
-    "published": true,
-    "upstream_code_repo": "ps5-payload-dev/shsrv",
-    "release_tag": "source-built-payloads",
-    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
-    "prerelease": false,
-    "asset": "pkg_install.elf",
-    "version": "2026-08-09T15:33:18Z"
-  },
   "SVT Play Installer": {
     "repo": "ps5-payload-dev/svtplay",
     "published": true,
@@ -138,13 +118,13 @@
     "version": "v1.0"
   },
   "ProsperoPlayer": {
-    "repo": "thatboialex/ps5-payload-source",
-    "published": false,
-    "upstream_code_repo": "KINGDKAK/ProsperoPlayer",
-    "release_tag": "source-built-payloads",
-    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
+    "repo": "KINGDKAK/ProsperoPlayer",
+    "published": true,
+    "release_tag": "v1.0",
+    "release_url": "https://github.com/KINGDKAK/ProsperoPlayer/releases/tag/v1.0",
     "prerelease": false,
-    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the selected GitHub release."
+    "asset": "ProsperoPlayer_MediaLauncher.elf",
+    "version": "v1.0"
   },
   "RetroArch PS5": {
     "repo": "tsuramatsu1/retroarch",
