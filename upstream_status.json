@@ -33,7 +33,7 @@
       "https://www.mediafire.com/file/w63j8iaz80jgt4k/InternetBrowser-PS5.pkg/file",
       "https://www.mediafire.com/file/lbyvaxn64w97rc1/InternetBrowser-PS5M.pkg/file"
     ],
-    "reason": "GitHub API HTTP 404 while checking latest release."
+    "reason": "GitHub API HTTP 404 while checking selected release."
   },
   "Ghostpad": {
     "repo": "StonedModder/Ghostpad",
@@ -125,7 +125,7 @@
     "release_tag": "pldmgr-elf-downloads",
     "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads",
     "prerelease": false,
-    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
+    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the selected GitHub release."
   },
   "RESTORE_PM": {
     "repo": "KINGDKAK/RESTORE_PM",
@@ -143,7 +143,7 @@
     "release_tag": "pldmgr-elf-downloads",
     "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads",
     "prerelease": false,
-    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
+    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the selected GitHub release."
   },
   "RetroArch PS5": {
     "repo": "tsuramatsu1/retroarch",
