@@ -25,5 +25,16 @@
       "https://www.mediafire.com/file/lbyvaxn64w97rc1/InternetBrowser-PS5M.pkg/file"
     ],
     "reason": "GitHub API HTTP 404 while checking latest release."
+  },
+  "Ghostpad": {
+    "repo": "StonedModder/Ghostpad",
+    "published": true,
+    "release_tag": "v1.0.0",
+    "asset": "ghostpad.elf"
+  },
+  "Save Sync PS-PC": {
+    "repo": "DIYTechnologist/SaveSyncPSPC",
+    "published": false,
+    "reason": "GitHub API HTTP 404 while checking latest release."
   }
 }
