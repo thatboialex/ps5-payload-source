@@ -41,6 +41,27 @@
         "https://www.mediafire.com/file/w63j8iaz80jgt4k/InternetBrowser-PS5.pkg/file",
         "https://www.mediafire.com/file/lbyvaxn64w97rc1/InternetBrowser-PS5M.pkg/file"
       ]
+    },
+    {
+      "name": "Ghostpad",
+      "repo": "StonedModder/Ghostpad",
+      "exact_assets": ["ghostpad.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "PS5 virtual DualSense payload for remote controller input over LAN, used with the Ghostpad PC app.",
+      "category": "Utilities & Tools",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "Save Sync PS-PC",
+      "repo": "DIYTechnologist/SaveSyncPSPC",
+      "exact_assets": [],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "PC-side save bridge for moving supported game saves between Garlic Save Manager on PS5 and local PC save directories.",
+      "category": "PC Companion Tools",
+      "publish_if_compatible": false,
+      "track_only": true,
+      "release_mode": "latest_any",
+      "track_only_reason": "PC-side companion application. Upstream release assets are Windows/Linux archives rather than PLDMGR-loadable PS5 payloads."
     }
   ]
 }
