@@ -1,0 +1,157 @@
+name: Build source-only payloads
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "43 */12 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-source-payloads.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-source-only-payloads
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve upstream revisions
+        id: upstream
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          FETCH_SHA="$(git ls-remote https://github.com/ps5-payload-dev/fetchpkg.git HEAD | awk '{print $1}')"
+          SHSRV_SHA="$(git ls-remote https://github.com/ps5-payload-dev/shsrv.git HEAD | awk '{print $1}')"
+          OLD_FETCH="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["fetchpkg"]["commit"])')"
+          OLD_SHSRV="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["pkg_install"]["commit"])')"
+
+          NEED_BUILD=false
+          if [[ "$FETCH_SHA" != "$OLD_FETCH" || "$SHSRV_SHA" != "$OLD_SHSRV" ]]; then
+            NEED_BUILD=true
+          fi
+
+          ASSETS="$(gh release view source-built-payloads --json assets --jq '.assets[].name' 2>/dev/null || true)"
+          if ! grep -qx 'fetchpkg.elf' <<<"$ASSETS" || ! grep -qx 'pkg_install.elf' <<<"$ASSETS"; then
+            NEED_BUILD=true
+          fi
+
+          echo "fetch_sha=$FETCH_SHA" >> "$GITHUB_OUTPUT"
+          echo "shsrv_sha=$SHSRV_SHA" >> "$GITHUB_OUTPUT"
+          echo "need_build=$NEED_BUILD" >> "$GITHUB_OUTPUT"
+
+      - name: Install build dependencies
+        if: steps.upstream.outputs.need_build == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang-18 lld-18 wget git xxd
+
+      - name: Install PS5 payload SDK
+        if: steps.upstream.outputs.need_build == 'true'
+        run: |
+          wget -q https://github.com/ps5-payload-dev/pacbrew-repo/releases/latest/download/ps5-payload-dev.tar.gz
+          sudo tar xf ps5-payload-dev.tar.gz -C /
+
+      - name: Fetch upstream source
+        if: steps.upstream.outputs.need_build == 'true'
+        run: |
+          git clone https://github.com/ps5-payload-dev/fetchpkg.git upstream-fetchpkg
+          git -C upstream-fetchpkg checkout "${{ steps.upstream.outputs.fetch_sha }}"
+          git clone https://github.com/ps5-payload-dev/shsrv.git upstream-shsrv
+          git -C upstream-shsrv checkout "${{ steps.upstream.outputs.shsrv_sha }}"
+
+      - name: Build fetchpkg.elf
+        if: steps.upstream.outputs.need_build == 'true'
+        env:
+          PS5_PAYLOAD_SDK: /opt/ps5-payload-sdk
+        run: |
+          make -C upstream-fetchpkg -f Makefile.ps5 clean all
+
+      - name: Build pkg_install.elf
+        if: steps.upstream.outputs.need_build == 'true'
+        env:
+          PS5_PAYLOAD_SDK: /opt/ps5-payload-sdk
+        run: |
+          make -C upstream-shsrv/bundles/pkg_install clean pkg_install.elf
+
+      - name: Validate ELF outputs
+        if: steps.upstream.outputs.need_build == 'true'
+        run: |
+          mkdir -p dist
+          cp upstream-fetchpkg/fetchpkg.elf dist/fetchpkg.elf
+          cp upstream-shsrv/bundles/pkg_install/pkg_install.elf dist/pkg_install.elf
+          python - <<'PY'
+          from pathlib import Path
+          for name in ("fetchpkg.elf", "pkg_install.elf"):
+              p = Path("dist") / name
+              data = p.read_bytes()
+              if len(data) < 4 or data[:4] != b"\x7fELF":
+                  raise SystemExit(f"{name} is not a valid ELF")
+              print(name, len(data), "bytes")
+          PY
+          sha256sum dist/*.elf
+
+      - name: Publish self-built release assets
+        if: steps.upstream.outputs.need_build == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view source-built-payloads >/dev/null 2>&1; then
+            gh release create source-built-payloads \
+              --target main \
+              --title "Source-built PS5 payloads" \
+              --notes "Automatically built from the current ps5-payload-dev/fetchpkg and ps5-payload-dev/shsrv source trees."
+          fi
+          gh release upload source-built-payloads dist/fetchpkg.elf dist/pkg_install.elf --clobber
+
+      - name: Record built revisions
+        if: steps.upstream.outputs.need_build == 'true'
+        env:
+          FETCH_SHA: ${{ steps.upstream.outputs.fetch_sha }}
+          SHSRV_SHA: ${{ steps.upstream.outputs.shsrv_sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          path = "self_built_sources.json"
+          data = json.load(open(path, encoding="utf-8"))
+          data["fetchpkg"]["commit"] = os.environ["FETCH_SHA"]
+          data["pkg_install"]["commit"] = os.environ["SHSRV_SHA"]
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f, indent=2)
+              f.write("\n")
+          PY
+
+      - name: Refresh PLDMGR catalog
+        if: steps.upstream.outputs.need_build == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/update_payloads.py
+          python -m unittest discover -s tests -v
+
+      - name: Commit refreshed catalog
+        if: steps.upstream.outputs.need_build == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add self_built_sources.json payloads.json upstream_status.json
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git commit -m "Update source-built payloads"
+          git pull --rebase origin main
+          git push
