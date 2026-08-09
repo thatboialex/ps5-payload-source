@@ -1,8 +1,9 @@
 {
   "status": "ok",
-  "verified_at_utc": "2026-08-09T16:15:40.732087+00:00",
+  "verified_at_utc": "2026-08-09T19:11:09.805533+00:00",
   "catalog_elf_count": 13,
   "release_elf_count": 13,
   "release_tag": "pldmgr-elf-downloads",
-  "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads"
+  "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads",
+  "pldmgr_source_url": "https://raw.githubusercontent.com/thatboialex/ps5-payload-source/main/payloads-v2.json"
 }
