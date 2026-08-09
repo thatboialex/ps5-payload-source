@@ -31,10 +31,5 @@
     "published": true,
     "release_tag": "v1.0.0",
     "asset": "ghostpad.elf"
-  },
-  "Save Sync PS-PC": {
-    "repo": "DIYTechnologist/SaveSyncPSPC",
-    "published": false,
-    "reason": "GitHub API HTTP 404 while checking latest release."
   }
 }
