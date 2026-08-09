@@ -20,7 +20,7 @@ SOURCES_PATH = ROOT / "sources.json"
 PAYLOADS_PATH = ROOT / "payloads.json"
 STATUS_PATH = ROOT / "upstream_status.json"
 API_VERSION = "2022-11-28"
-USER_AGENT = "ps5-payload-source-updater/1.1"
+USER_AGENT = "ps5-payload-source-updater/1.2"
 
 
 def request(url: str, *, accept: str = "application/vnd.github+json") -> urllib.request.Request:
@@ -106,6 +106,14 @@ def sha256_url(url: str) -> str:
     return hasher.hexdigest()
 
 
+def asset_version(source: dict[str, Any], release: dict[str, Any], asset: dict[str, Any]) -> str:
+    if source.get("version_mode") == "asset_updated_at":
+        stamp = asset.get("updated_at") or asset.get("created_at")
+        if isinstance(stamp, str) and stamp:
+            return stamp
+    return str(release.get("tag_name") or release.get("name") or "latest")
+
+
 def payload_from_release(source: dict[str, Any], release: dict[str, Any], asset: dict[str, Any]) -> dict[str, Any]:
     url = asset.get("browser_download_url")
     name = asset.get("name")
@@ -117,7 +125,7 @@ def payload_from_release(source: dict[str, Any], release: dict[str, Any], asset:
         "filename": name,
         "url": url,
         "description": source.get("description", ""),
-        "version": str(release.get("tag_name") or release.get("name") or "latest"),
+        "version": asset_version(source, release, asset),
         "category": source.get("category", "Uncategorized"),
     }
 
@@ -159,6 +167,8 @@ def main() -> int:
         record: dict[str, Any] = {"repo": repo, "published": False}
         if source.get("manual_package_links"):
             record["manual_package_links"] = source["manual_package_links"]
+        if source.get("upstream_code_repo"):
+            record["upstream_code_repo"] = source["upstream_code_repo"]
 
         try:
             release = latest_release(repo, source)
@@ -181,7 +191,7 @@ def main() -> int:
             if asset and source.get("publish_if_compatible", True):
                 item = payload_from_release(source, release, asset)
                 payloads.append(item)
-                record.update({"published": True, "asset": item["filename"]})
+                record.update({"published": True, "asset": item["filename"], "version": item["version"]})
             else:
                 record["reason"] = "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
                 if name in existing and source.get("publish_if_compatible", True) and source.get("exact_assets"):
