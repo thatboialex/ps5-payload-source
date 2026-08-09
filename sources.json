@@ -61,28 +61,6 @@
       "publish_if_compatible": true
     },
     {
-      "name": "fetchpkg",
-      "repo": "thatboialex/ps5-payload-source",
-      "exact_assets": ["fetchpkg.elf"],
-      "allowed_extensions": [".elf"],
-      "description": "Downloads official Sony PS4/PS5 package updates from JSON manifests. Automatically built from ps5-payload-dev/fetchpkg source.",
-      "category": "Packages & Downloads",
-      "publish_if_compatible": true,
-      "version_mode": "asset_updated_at",
-      "upstream_code_repo": "ps5-payload-dev/fetchpkg"
-    },
-    {
-      "name": "pkg_install",
-      "repo": "thatboialex/ps5-payload-source",
-      "exact_assets": ["pkg_install.elf"],
-      "allowed_extensions": [".elf"],
-      "description": "PS5 package-install helper payload. Automatically built from ps5-payload-dev/shsrv's pkg_install source.",
-      "category": "Packages & Downloads",
-      "publish_if_compatible": true,
-      "version_mode": "asset_updated_at",
-      "upstream_code_repo": "ps5-payload-dev/shsrv"
-    },
-    {
       "name": "SVT Play Installer",
       "repo": "ps5-payload-dev/svtplay",
       "exact_assets": ["svtplay-install.elf"],
@@ -150,14 +128,13 @@
     },
     {
       "name": "ProsperoPlayer",
-      "repo": "thatboialex/ps5-payload-source",
+      "repo": "KINGDKAK/ProsperoPlayer",
       "exact_assets": ["PS5MediaPlayerPRO.elf"],
       "allowed_extensions": [".elf"],
       "description": "PS5 homebrew media player for USB video, music and images with subtitles, resume playback and media controls.",
       "category": "Media",
       "publish_if_compatible": true,
-      "version_mode": "asset_updated_at",
-      "upstream_code_repo": "KINGDKAK/ProsperoPlayer"
+      "release_tag": "v1.0"
     },
     {
       "name": "RetroArch PS5",
