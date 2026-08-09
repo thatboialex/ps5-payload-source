@@ -122,7 +122,7 @@
     {
       "name": "PS5 BAR Tool - Save Data",
       "repo": "c0w-ar/ps5-bar-tool",
-      "exact_assets": ["ps5-bar-tool_dump_savedata.elf"],
+      "exact_assets": ["ps5-bar-tool_savedata.elf"],
       "allowed_extensions": [".elf"],
       "description": "Parses PS5 Backup and Restore archives and dumps PS4/PS5 save-data files.",
       "category": "Backup & Recovery",
