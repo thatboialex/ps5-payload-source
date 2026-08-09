@@ -1,0 +1,122 @@
+{
+  "name": "Jason's PS5 GitHub Payloads v2",
+  "payloads": [
+    {
+      "name": "CheatRunner",
+      "filename": "CheatRunner.elf",
+      "url": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.17/CheatRunner.elf",
+      "description": "Web-based PS5 cheat trainer for already-jailbroken PS5 consoles.",
+      "version": "v0.17",
+      "category": "Cheats & Trainers",
+      "checksum": "2f296d3f1e69b65439bb5dc362f0f6504f6dc9f245fa16a3683e9d7ec9533773"
+    },
+    {
+      "name": "Pegasus DL",
+      "filename": "pegasus_dl.elf",
+      "url": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.7.0/pegasus_dl.elf",
+      "description": "PS5 payload for direct package downloading and local file management through a web interface.",
+      "version": "v1.7.0",
+      "category": "Utilities & Tools",
+      "checksum": "cb2a4b3c248323f2432ce118cb1bf4975146035239ce9b571a9bdb51b3fee226"
+    },
+    {
+      "name": "Kylin Core",
+      "filename": "kylin-core.elf",
+      "url": "https://github.com/aydencharles/kylin-core-release/releases/download/v1.3.1-community-lite/kylin-core.elf",
+      "description": "PS5 homebrew cheat loader and real-time game modifier.",
+      "version": "v1.3.1-community-lite",
+      "category": "Cheats & Trainers",
+      "checksum": "90320a4169d61be6e168e605e59c4d8fc89fb978f1772f03c2011e7e8087b8a3"
+    },
+    {
+      "name": "Ghostpad",
+      "filename": "ghostpad.elf",
+      "url": "https://github.com/StonedModder/Ghostpad/releases/download/v1.0.0/ghostpad.elf",
+      "description": "PS5 virtual DualSense payload for remote controller input over LAN, used with the Ghostpad PC app.",
+      "version": "v1.0.0",
+      "category": "Utilities & Tools",
+      "checksum": "94d43a8db7ec9df6e18f0a0da25aac0f60e1a0b14d35bfff261f6f5cdeabdba1"
+    },
+    {
+      "name": "Kura Loader",
+      "filename": "kura-loader.elf",
+      "url": "https://github.com/NookieAI/kura/releases/download/v1.6.25/kura-loader.elf",
+      "description": "Self-contained PS5 companion payload for Kura with a web dashboard, installs, cheats, saves, storage tools and console management.",
+      "version": "v1.6.25",
+      "category": "Utilities & Tools",
+      "checksum": "a492f9a661e3b8cc1ad59d151bb6e3eca6fd76087a4d5fbbe22c02f5403ff5d5"
+    },
+    {
+      "name": "SVT Play Installer",
+      "filename": "svtplay-install.elf",
+      "url": "https://github.com/ps5-payload-dev/svtplay/releases/download/v0.2/svtplay-install.elf",
+      "description": "Installs the unofficial SVT Play 10-foot UI to the PS5 Media tab; streams are generally geo-restricted to Swedish IP addresses.",
+      "version": "v0.2",
+      "category": "Media",
+      "checksum": "5bdf25142512f25dc6269bd7c90a914001fcef5e731125a74aa23c1a8d91810f"
+    },
+    {
+      "name": "PS5 BAR Tool - Info",
+      "filename": "ps5-bar-tool_info.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_info.elf",
+      "description": "Parses PS5 Backup and Restore archive information and logs results locally and remotely.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "d599494640529779c4fb2b08f06946c576230c848b88e530bc7b5e33926eb4ce"
+    },
+    {
+      "name": "PS5 BAR Tool - Main Segments",
+      "filename": "ps5-bar-tool_dump_main_segments.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_dump_main_segments.elf",
+      "description": "Parses a PS5 Backup and Restore archive and dumps special/main embedded segments.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "2c3b053c206cd39e778f2fc032637bcd69cab4ac58a15ffac462dddcb523642c"
+    },
+    {
+      "name": "PS5 BAR Tool - Full Dump",
+      "filename": "ps5-bar-tool_dump_all.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_dump_all.elf",
+      "description": "Dumps supported embedded files from a PS5 Backup and Restore archive to USB.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "d4ce2a9d07f7ece1908523f2390e2d846c4f1ed9c1d5580e489532570b20e6ee"
+    },
+    {
+      "name": "PS5 BAR Tool - Save Data",
+      "filename": "ps5-bar-tool_savedata.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_savedata.elf",
+      "description": "Parses PS5 Backup and Restore archives and dumps PS4/PS5 save-data files.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "55203af40dac4a5b72f8f7350987104ae9a3ac59d4bec45638d6dfec873131b2"
+    },
+    {
+      "name": "Ghostcontrol",
+      "filename": "ghost-control-x10-ds4.elf",
+      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/source-built-payloads/ghost-control-x10-ds4.elf",
+      "description": "Uses supported third-party USB controllers on PS5 by translating USB HID input into a virtual DualSense.",
+      "version": "2026-08-09T16:08:56Z",
+      "category": "Controllers & Input",
+      "checksum": "9ef5718ff0b6fa1b0b90a5d7108335d7852458919dd1deae30968b43fb39a5bb"
+    },
+    {
+      "name": "RESTORE_PM",
+      "filename": "RESTORE_PM.elf",
+      "url": "https://github.com/KINGDKAK/RESTORE_PM/releases/download/v1.0/RESTORE_PM.elf",
+      "description": "Restores the Payload Manager tile on the PS5 home screen if it is missing or no longer opens.",
+      "version": "v1.0",
+      "category": "System & Jailbreak",
+      "checksum": "ecdcbccdf1b4595e4e1b750aa9a3a7f4c7f9682ab5258776494928399bc24d64"
+    },
+    {
+      "name": "ProsperoPlayer",
+      "filename": "ProsperoPlayer_MediaLauncher.elf",
+      "url": "https://github.com/KINGDKAK/ProsperoPlayer/releases/download/v1.0/ProsperoPlayer_MediaLauncher.elf",
+      "description": "PS5 homebrew media player for USB video, music and images with subtitles, resume playback and media controls.",
+      "version": "v1.0",
+      "category": "Media",
+      "checksum": "40b9955273982cd563e1b16bd428ea6a9c399e7d4bc55b220fe223948572cdad"
+    }
+  ]
+}
