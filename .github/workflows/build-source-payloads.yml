@@ -35,44 +35,34 @@ jobs:
           set -euo pipefail
           FETCH_SHA="$(git ls-remote https://github.com/ps5-payload-dev/fetchpkg.git HEAD | awk '{print $1}')"
           SHSRV_SHA="$(git ls-remote https://github.com/ps5-payload-dev/shsrv.git HEAD | awk '{print $1}')"
-          GHOST_SHA="$(git ls-remote https://github.com/FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher.git HEAD | awk '{print $1}')"
-          PROSPERO_SHA="$(git ls-remote https://github.com/KINGDKAK/ProsperoPlayer.git HEAD | awk '{print $1}')"
-
           OLD_FETCH="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["fetchpkg"]["commit"])')"
           OLD_SHSRV="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["pkg_install"]["commit"])')"
-          OLD_GHOST="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["Ghostcontrol"]["commit"])')"
-          OLD_PROSPERO="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["ProsperoPlayer"]["commit"])')"
 
           NEED_BUILD=false
-          if [[ "$FETCH_SHA" != "$OLD_FETCH" || "$SHSRV_SHA" != "$OLD_SHSRV" || "$GHOST_SHA" != "$OLD_GHOST" || "$PROSPERO_SHA" != "$OLD_PROSPERO" ]]; then
+          if [[ "$FETCH_SHA" != "$OLD_FETCH" || "$SHSRV_SHA" != "$OLD_SHSRV" ]]; then
             NEED_BUILD=true
           fi
 
           ASSETS="$(gh release view source-built-payloads --json assets --jq '.assets[].name' 2>/dev/null || true)"
-          for asset in fetchpkg.elf pkg_install.elf ghost-control-x10-ds4.elf PS5MediaPlayerPRO.elf; do
-            if ! grep -qx "$asset" <<<"$ASSETS"; then
-              NEED_BUILD=true
-            fi
+          for asset in fetchpkg.elf pkg_install.elf; do
+            if ! grep -qx "$asset" <<<"$ASSETS"; then NEED_BUILD=true; fi
           done
 
           echo "fetch_sha=$FETCH_SHA" >> "$GITHUB_OUTPUT"
           echo "shsrv_sha=$SHSRV_SHA" >> "$GITHUB_OUTPUT"
-          echo "ghost_sha=$GHOST_SHA" >> "$GITHUB_OUTPUT"
-          echo "prospero_sha=$PROSPERO_SHA" >> "$GITHUB_OUTPUT"
           echo "need_build=$NEED_BUILD" >> "$GITHUB_OUTPUT"
 
       - name: Install build dependencies
         if: steps.upstream.outputs.need_build == 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential clang-18 lld-18 llvm-18 llvm-18-dev wget git xxd cmake pkg-config
+          sudo apt-get install -y build-essential clang-18 lld-18 wget git xxd
 
-      - name: Install PS5 payload SDK and prebuilt libraries
+      - name: Install PS5 payload SDK
         if: steps.upstream.outputs.need_build == 'true'
         run: |
           wget -q https://github.com/ps5-payload-dev/pacbrew-repo/releases/latest/download/ps5-payload-dev.tar.gz
           sudo tar xf ps5-payload-dev.tar.gz -C /
-          test -x /opt/ps5-payload-sdk/bin/prospero-clang
 
       - name: Fetch upstream source
         if: steps.upstream.outputs.need_build == 'true'
@@ -81,10 +71,6 @@ jobs:
           git -C upstream-fetchpkg checkout "${{ steps.upstream.outputs.fetch_sha }}"
           git clone https://github.com/ps5-payload-dev/shsrv.git upstream-shsrv
           git -C upstream-shsrv checkout "${{ steps.upstream.outputs.shsrv_sha }}"
-          git clone https://github.com/FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher.git upstream-ghostcontrol
-          git -C upstream-ghostcontrol checkout "${{ steps.upstream.outputs.ghost_sha }}"
-          git clone https://github.com/KINGDKAK/ProsperoPlayer.git upstream-prospero
-          git -C upstream-prospero checkout "${{ steps.upstream.outputs.prospero_sha }}"
 
       - name: Build source-only ELFs
         if: steps.upstream.outputs.need_build == 'true'
@@ -93,8 +79,6 @@ jobs:
         run: |
           make -C upstream-fetchpkg -f Makefile.ps5 clean all
           make -C upstream-shsrv/bundles/pkg_install clean pkg_install.elf
-          make -C upstream-ghostcontrol/payload clean all
-          make -C upstream-prospero clean all
 
       - name: Validate ELF outputs
         if: steps.upstream.outputs.need_build == 'true'
@@ -102,15 +86,12 @@ jobs:
           mkdir -p dist
           cp upstream-fetchpkg/fetchpkg.elf dist/fetchpkg.elf
           cp upstream-shsrv/bundles/pkg_install/pkg_install.elf dist/pkg_install.elf
-          cp upstream-ghostcontrol/payload/ghost-control-x10-ds4.elf dist/ghost-control-x10-ds4.elf
-          cp upstream-prospero/PS5MediaPlayerPRO.elf dist/PS5MediaPlayerPRO.elf
           python - <<'PY'
           from pathlib import Path
-          for p in sorted(Path("dist").glob("*.elf")):
-              data = p.read_bytes()
-              if len(data) < 4 or data[:4] != b"\x7fELF":
-                  raise SystemExit(f"{p.name} is not a valid ELF")
-              print(p.name, len(data), "bytes")
+          for p in sorted(Path('dist').glob('*.elf')):
+              data=p.read_bytes()
+              if data[:4] != b'\x7fELF': raise SystemExit(f'{p.name} is not ELF')
+              print(p.name, len(data), 'bytes')
           PY
           sha256sum dist/*.elf
 
@@ -120,58 +101,36 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if ! gh release view source-built-payloads >/dev/null 2>&1; then
-            gh release create source-built-payloads \
-              --target main \
-              --title "Source-built PS5 payloads" \
-              --notes "Automatically built from the current upstream source trees."
+            gh release create source-built-payloads --target main --title "Source-built PS5 payloads" --notes "Automatically built from current upstream source trees."
           fi
-          gh release upload source-built-payloads \
-            dist/fetchpkg.elf \
-            dist/pkg_install.elf \
-            dist/ghost-control-x10-ds4.elf \
-            dist/PS5MediaPlayerPRO.elf \
-            --clobber
+          gh release upload source-built-payloads dist/fetchpkg.elf dist/pkg_install.elf --clobber
 
-      - name: Record built revisions
-        if: steps.upstream.outputs.need_build == 'true'
-        env:
-          FETCH_SHA: ${{ steps.upstream.outputs.fetch_sha }}
-          SHSRV_SHA: ${{ steps.upstream.outputs.shsrv_sha }}
-          GHOST_SHA: ${{ steps.upstream.outputs.ghost_sha }}
-          PROSPERO_SHA: ${{ steps.upstream.outputs.prospero_sha }}
-        run: |
-          python - <<'PY'
-          import json, os
-          path = "self_built_sources.json"
-          data = json.load(open(path, encoding="utf-8"))
-          data["fetchpkg"]["commit"] = os.environ["FETCH_SHA"]
-          data["pkg_install"]["commit"] = os.environ["SHSRV_SHA"]
-          data["Ghostcontrol"]["commit"] = os.environ["GHOST_SHA"]
-          data["ProsperoPlayer"]["commit"] = os.environ["PROSPERO_SHA"]
-          with open(path, "w", encoding="utf-8") as f:
-              json.dump(data, f, indent=2)
-              f.write("\n")
-          PY
-
-      - name: Refresh PLDMGR catalog
+      - name: Record built revisions and refresh catalog
         if: steps.upstream.outputs.need_build == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FETCH_SHA: ${{ steps.upstream.outputs.fetch_sha }}
+          SHSRV_SHA: ${{ steps.upstream.outputs.shsrv_sha }}
         run: |
+          python - <<'PY'
+          import json, os
+          p='self_built_sources.json'
+          d=json.load(open(p, encoding='utf-8'))
+          d['fetchpkg']['commit']=os.environ['FETCH_SHA']
+          d['pkg_install']['commit']=os.environ['SHSRV_SHA']
+          with open(p,'w',encoding='utf-8') as f:
+              json.dump(d,f,indent=2); f.write('\n')
+          PY
           python scripts/update_payloads.py
           python -m unittest discover -s tests -v
 
       - name: Commit refreshed catalog
         if: steps.upstream.outputs.need_build == 'true'
-        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add self_built_sources.json payloads.json upstream_status.json
-          if git diff --cached --quiet; then
-            echo "Nothing changed."
-            exit 0
-          fi
+          if git diff --cached --quiet; then exit 0; fi
           git commit -m "Update source-built payloads"
           git pull --rebase origin main
           git push
