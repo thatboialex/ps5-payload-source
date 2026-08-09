@@ -6,5 +6,13 @@
   "pkg_install": {
     "repo": "ps5-payload-dev/shsrv",
     "commit": "6f320637d56d344a0e7797753099e33238bbf146"
+  },
+  "Ghostcontrol": {
+    "repo": "FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher",
+    "commit": ""
+  },
+  "ProsperoPlayer": {
+    "repo": "KINGDKAK/ProsperoPlayer",
+    "commit": ""
   }
 }
