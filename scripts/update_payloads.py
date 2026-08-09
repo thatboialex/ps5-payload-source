@@ -21,7 +21,8 @@ SOURCES_PATH = ROOT / "sources.json"
 PAYLOADS_PATH = ROOT / "payloads.json"
 STATUS_PATH = ROOT / "upstream_status.json"
 API_VERSION = "2022-11-28"
-USER_AGENT = "ps5-payload-source-updater/1.3"
+USER_AGENT = "ps5-payload-source-updater/1.4"
+SELF_BUILT_RELEASE_TAG = "source-built-payloads"
 
 
 def request(url: str, *, accept: str = "application/vnd.github+json") -> urllib.request.Request:
@@ -45,6 +46,9 @@ def latest_release(repo: str, source: dict[str, Any] | None = None) -> dict[str,
     source = source or {}
 
     fixed_tag = source.get("release_tag")
+    if not fixed_tag and source.get("upstream_code_repo"):
+        fixed_tag = SELF_BUILT_RELEASE_TAG
+
     if isinstance(fixed_tag, str) and fixed_tag:
         tag = urllib.parse.quote(fixed_tag, safe="")
         release = get_json(f"https://api.github.com/repos/{repo}/releases/tags/{tag}")
