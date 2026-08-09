@@ -20,7 +20,7 @@ SOURCES_PATH = ROOT / "sources.json"
 PAYLOADS_PATH = ROOT / "payloads.json"
 STATUS_PATH = ROOT / "upstream_status.json"
 API_VERSION = "2022-11-28"
-USER_AGENT = "ps5-payload-source-updater/1.0"
+USER_AGENT = "ps5-payload-source-updater/1.1"
 
 
 def request(url: str, *, accept: str = "application/vnd.github+json") -> urllib.request.Request:
@@ -35,13 +35,26 @@ def request(url: str, *, accept: str = "application/vnd.github+json") -> urllib.
     return urllib.request.Request(url, headers=headers)
 
 
-def get_json(url: str) -> dict[str, Any]:
+def get_json(url: str) -> Any:
     with urllib.request.urlopen(request(url), timeout=30) as response:
         return json.load(response)
 
 
-def latest_release(repo: str) -> dict[str, Any]:
-    return get_json(f"https://api.github.com/repos/{repo}/releases/latest")
+def latest_release(repo: str, source: dict[str, Any] | None = None) -> dict[str, Any]:
+    source = source or {}
+    if source.get("release_mode") == "latest_any":
+        releases = get_json(f"https://api.github.com/repos/{repo}/releases?per_page=20")
+        if not isinstance(releases, list):
+            raise ValueError("GitHub releases endpoint returned an unexpected response")
+        for release in releases:
+            if isinstance(release, dict) and not release.get("draft"):
+                return release
+        raise ValueError("No published GitHub release found")
+
+    release = get_json(f"https://api.github.com/repos/{repo}/releases/latest")
+    if not isinstance(release, dict):
+        raise ValueError("GitHub latest-release endpoint returned an unexpected response")
+    return release
 
 
 def supported_asset(asset: dict[str, Any], source: dict[str, Any]) -> bool:
@@ -52,7 +65,7 @@ def supported_asset(asset: dict[str, Any], source: dict[str, Any]) -> bool:
 
 
 def choose_asset(release: dict[str, Any], source: dict[str, Any]) -> dict[str, Any] | None:
-    assets = [a for a in release.get("assets", []) if supported_asset(a, source)]
+    assets = [a for a in release.get("assets", []) if isinstance(a, dict) and supported_asset(a, source)]
     if not assets:
         return None
 
@@ -126,6 +139,14 @@ def load_existing_payloads() -> dict[str, dict[str, Any]]:
     return {p["name"]: p for p in data.get("payloads", []) if isinstance(p, dict) and p.get("name")}
 
 
+def release_asset_names(release: dict[str, Any]) -> list[str]:
+    names: list[str] = []
+    for asset in release.get("assets", []):
+        if isinstance(asset, dict) and asset.get("name"):
+            names.append(str(asset["name"]))
+    return names
+
+
 def main() -> int:
     config = json.loads(SOURCES_PATH.read_text(encoding="utf-8"))
     existing = load_existing_payloads()
@@ -140,8 +161,22 @@ def main() -> int:
             record["manual_package_links"] = source["manual_package_links"]
 
         try:
-            release = latest_release(repo)
+            release = latest_release(repo, source)
             record["release_tag"] = str(release.get("tag_name") or release.get("name") or "")
+            if release.get("html_url"):
+                record["release_url"] = str(release["html_url"])
+            record["prerelease"] = bool(release.get("prerelease"))
+
+            if source.get("track_only"):
+                record["tracked_only"] = True
+                record["assets"] = release_asset_names(release)
+                record["reason"] = source.get(
+                    "track_only_reason",
+                    "Tracked for upstream release changes but not published as a PLDMGR payload.",
+                )
+                status[name] = record
+                continue
+
             asset = choose_asset(release, source)
             if asset and source.get("publish_if_compatible", True):
                 item = payload_from_release(source, release, asset)
@@ -155,13 +190,13 @@ def main() -> int:
                     record["retained_previous_entry"] = True
         except urllib.error.HTTPError as exc:
             record["reason"] = f"GitHub API HTTP {exc.code} while checking latest release."
-            if name in existing and source.get("exact_assets"):
+            if name in existing and source.get("exact_assets") and not source.get("track_only"):
                 payloads.append(existing[name])
                 record["published"] = True
                 record["retained_previous_entry"] = True
         except Exception as exc:
             record["reason"] = f"Update check failed: {type(exc).__name__}: {exc}"
-            if name in existing and source.get("exact_assets"):
+            if name in existing and source.get("exact_assets") and not source.get("track_only"):
                 payloads.append(existing[name])
                 record["published"] = True
                 record["retained_previous_entry"] = True
