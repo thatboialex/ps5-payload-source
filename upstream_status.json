@@ -3,18 +3,24 @@
     "repo": "notmaj0r/CheatRunner",
     "published": true,
     "release_tag": "v0.17",
+    "release_url": "https://github.com/notmaj0r/CheatRunner/releases/tag/v0.17",
+    "prerelease": false,
     "asset": "CheatRunner.elf"
   },
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
     "published": true,
     "release_tag": "v1.7.0",
+    "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/v1.7.0",
+    "prerelease": false,
     "asset": "pegasus_dl.elf"
   },
   "Kylin Core": {
     "repo": "aydencharles/kylin-core-release",
     "published": true,
     "release_tag": "v1.3.1-community-lite",
+    "release_url": "https://github.com/aydencharles/kylin-core-release/releases/tag/v1.3.1-community-lite",
+    "prerelease": false,
     "asset": "kylin-core.elf"
   },
   "WBrowser": {
@@ -30,6 +36,34 @@
     "repo": "StonedModder/Ghostpad",
     "published": true,
     "release_tag": "v1.0.0",
+    "release_url": "https://github.com/StonedModder/Ghostpad/releases/tag/v1.0.0",
+    "prerelease": false,
     "asset": "ghostpad.elf"
+  },
+  "Kura Loader": {
+    "repo": "NookieAI/kura",
+    "published": true,
+    "release_tag": "v1.6.25",
+    "release_url": "https://github.com/NookieAI/kura/releases/tag/v1.6.25",
+    "prerelease": false,
+    "asset": "kura-loader.elf"
+  },
+  "fetchpkg": {
+    "repo": "aldostools/PS5-Payloads",
+    "published": false,
+    "reason": "GitHub API HTTP 404 while checking latest release."
+  },
+  "pkg_install": {
+    "repo": "aldostools/PS5-Payloads",
+    "published": false,
+    "reason": "GitHub API HTTP 404 while checking latest release."
+  },
+  "SVT Play Installer": {
+    "repo": "ps5-payload-dev/svtplay",
+    "published": true,
+    "release_tag": "v0.2",
+    "release_url": "https://github.com/ps5-payload-dev/svtplay/releases/tag/v0.2",
+    "prerelease": false,
+    "asset": "svtplay-install.elf"
   }
 }

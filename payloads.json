@@ -36,6 +36,24 @@
       "version": "v1.0.0",
       "category": "Utilities & Tools",
       "checksum": "94d43a8db7ec9df6e18f0a0da25aac0f60e1a0b14d35bfff261f6f5cdeabdba1"
+    },
+    {
+      "name": "Kura Loader",
+      "filename": "kura-loader.elf",
+      "url": "https://github.com/NookieAI/kura/releases/download/v1.6.25/kura-loader.elf",
+      "description": "Self-contained PS5 companion payload for Kura with a web dashboard, installs, cheats, saves, storage tools and console management.",
+      "version": "v1.6.25",
+      "category": "Utilities & Tools",
+      "checksum": "a492f9a661e3b8cc1ad59d151bb6e3eca6fd76087a4d5fbbe22c02f5403ff5d5"
+    },
+    {
+      "name": "SVT Play Installer",
+      "filename": "svtplay-install.elf",
+      "url": "https://github.com/ps5-payload-dev/svtplay/releases/download/v0.2/svtplay-install.elf",
+      "description": "Installs the unofficial SVT Play 10-foot UI to the PS5 Media tab; streams are generally geo-restricted to Swedish IP addresses.",
+      "version": "v0.2",
+      "category": "Media",
+      "checksum": "5bdf25142512f25dc6269bd7c90a914001fcef5e731125a74aa23c1a8d91810f"
     }
   ]
 }
