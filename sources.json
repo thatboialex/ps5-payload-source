@@ -50,6 +50,44 @@
       "description": "PS5 virtual DualSense payload for remote controller input over LAN, used with the Ghostpad PC app.",
       "category": "Utilities & Tools",
       "publish_if_compatible": true
+    },
+    {
+      "name": "Kura Loader",
+      "repo": "NookieAI/kura",
+      "exact_assets": ["kura-loader.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "Self-contained PS5 companion payload for Kura with a web dashboard, installs, cheats, saves, storage tools and console management.",
+      "category": "Utilities & Tools",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "fetchpkg",
+      "repo": "aldostools/PS5-Payloads",
+      "exact_assets": ["fetchpkg.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "Downloads official Sony PS4/PS5 package updates from JSON manifests; upstream code is ps5-payload-dev/fetchpkg.",
+      "category": "Packages & Downloads",
+      "publish_if_compatible": true,
+      "upstream_code_repo": "ps5-payload-dev/fetchpkg"
+    },
+    {
+      "name": "pkg_install",
+      "repo": "aldostools/PS5-Payloads",
+      "exact_assets": ["pkg_install.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "PS5 package-install helper payload by John Tornblom.",
+      "category": "Packages & Downloads",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "SVT Play Installer",
+      "repo": "ps5-payload-dev/svtplay",
+      "exact_assets": ["svtplay-install.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "Installs the unofficial SVT Play 10-foot UI to the PS5 Media tab; streams are generally geo-restricted to Swedish IP addresses.",
+      "category": "Media",
+      "publish_if_compatible": true,
+      "release_mode": "latest_any"
     }
   ]
 }
