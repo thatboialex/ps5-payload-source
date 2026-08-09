@@ -5,7 +5,8 @@
     "release_tag": "v0.17",
     "release_url": "https://github.com/notmaj0r/CheatRunner/releases/tag/v0.17",
     "prerelease": false,
-    "asset": "CheatRunner.elf"
+    "asset": "CheatRunner.elf",
+    "version": "v0.17"
   },
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
@@ -13,7 +14,8 @@
     "release_tag": "v1.7.0",
     "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/v1.7.0",
     "prerelease": false,
-    "asset": "pegasus_dl.elf"
+    "asset": "pegasus_dl.elf",
+    "version": "v1.7.0"
   },
   "Kylin Core": {
     "repo": "aydencharles/kylin-core-release",
@@ -21,7 +23,8 @@
     "release_tag": "v1.3.1-community-lite",
     "release_url": "https://github.com/aydencharles/kylin-core-release/releases/tag/v1.3.1-community-lite",
     "prerelease": false,
-    "asset": "kylin-core.elf"
+    "asset": "kylin-core.elf",
+    "version": "v1.3.1-community-lite"
   },
   "WBrowser": {
     "repo": "ps5xploit/WBrowser",
@@ -38,7 +41,8 @@
     "release_tag": "v1.0.0",
     "release_url": "https://github.com/StonedModder/Ghostpad/releases/tag/v1.0.0",
     "prerelease": false,
-    "asset": "ghostpad.elf"
+    "asset": "ghostpad.elf",
+    "version": "v1.0.0"
   },
   "Kura Loader": {
     "repo": "NookieAI/kura",
@@ -46,16 +50,19 @@
     "release_tag": "v1.6.25",
     "release_url": "https://github.com/NookieAI/kura/releases/tag/v1.6.25",
     "prerelease": false,
-    "asset": "kura-loader.elf"
+    "asset": "kura-loader.elf",
+    "version": "v1.6.25"
   },
   "fetchpkg": {
     "repo": "thatboialex/ps5-payload-source",
     "published": false,
+    "upstream_code_repo": "ps5-payload-dev/fetchpkg",
     "reason": "GitHub API HTTP 404 while checking latest release."
   },
   "pkg_install": {
     "repo": "thatboialex/ps5-payload-source",
     "published": false,
+    "upstream_code_repo": "ps5-payload-dev/shsrv",
     "reason": "GitHub API HTTP 404 while checking latest release."
   },
   "SVT Play Installer": {
@@ -64,6 +71,7 @@
     "release_tag": "v0.2",
     "release_url": "https://github.com/ps5-payload-dev/svtplay/releases/tag/v0.2",
     "prerelease": false,
-    "asset": "svtplay-install.elf"
+    "asset": "svtplay-install.elf",
+    "version": "v0.2"
   }
 }
