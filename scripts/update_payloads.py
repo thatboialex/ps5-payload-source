@@ -11,6 +11,7 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -20,7 +21,7 @@ SOURCES_PATH = ROOT / "sources.json"
 PAYLOADS_PATH = ROOT / "payloads.json"
 STATUS_PATH = ROOT / "upstream_status.json"
 API_VERSION = "2022-11-28"
-USER_AGENT = "ps5-payload-source-updater/1.2"
+USER_AGENT = "ps5-payload-source-updater/1.3"
 
 
 def request(url: str, *, accept: str = "application/vnd.github+json") -> urllib.request.Request:
@@ -42,6 +43,15 @@ def get_json(url: str) -> Any:
 
 def latest_release(repo: str, source: dict[str, Any] | None = None) -> dict[str, Any]:
     source = source or {}
+
+    fixed_tag = source.get("release_tag")
+    if isinstance(fixed_tag, str) and fixed_tag:
+        tag = urllib.parse.quote(fixed_tag, safe="")
+        release = get_json(f"https://api.github.com/repos/{repo}/releases/tags/{tag}")
+        if not isinstance(release, dict):
+            raise ValueError("GitHub tagged-release endpoint returned an unexpected response")
+        return release
+
     if source.get("release_mode") == "latest_any":
         releases = get_json(f"https://api.github.com/repos/{repo}/releases?per_page=20")
         if not isinstance(releases, list):
@@ -193,13 +203,13 @@ def main() -> int:
                 payloads.append(item)
                 record.update({"published": True, "asset": item["filename"], "version": item["version"]})
             else:
-                record["reason"] = "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
+                record["reason"] = "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the selected GitHub release."
                 if name in existing and source.get("publish_if_compatible", True) and source.get("exact_assets"):
                     payloads.append(existing[name])
                     record["published"] = True
                     record["retained_previous_entry"] = True
         except urllib.error.HTTPError as exc:
-            record["reason"] = f"GitHub API HTTP {exc.code} while checking latest release."
+            record["reason"] = f"GitHub API HTTP {exc.code} while checking selected release."
             if name in existing and source.get("exact_assets") and not source.get("track_only"):
                 payloads.append(existing[name])
                 record["published"] = True
