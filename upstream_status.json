@@ -1,0 +1,27 @@
+{
+  "CheatRunner": {
+    "repo": "notmaj0r/CheatRunner",
+    "published": true,
+    "note": "Seeded with GitHub's stable latest-release asset URL. The workflow resolves exact release metadata on first run."
+  },
+  "Pegasus DL": {
+    "repo": "pegasus-ps5/pegasus-dl",
+    "published": true,
+    "release_tag": "v1.7.0",
+    "asset": "pegasus_dl.elf"
+  },
+  "Kylin Core": {
+    "repo": "aydencharles/kylin-core-release",
+    "published": true,
+    "note": "Seeded with GitHub's stable latest-release asset URL. The workflow resolves exact release metadata on first run."
+  },
+  "WBrowser": {
+    "repo": "ps5xploit/WBrowser",
+    "published": false,
+    "reason": "Upstream currently documents PKG installers rather than a PLDMGR-loadable .elf/.bin/.lua payload.",
+    "manual_package_links": [
+      "https://www.mediafire.com/file/w63j8iaz80jgt4k/InternetBrowser-PS5.pkg/file",
+      "https://www.mediafire.com/file/lbyvaxn64w97rc1/InternetBrowser-PS5M.pkg/file"
+    ]
+  }
+}
