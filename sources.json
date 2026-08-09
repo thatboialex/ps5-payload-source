@@ -1,0 +1,46 @@
+{
+  "repository_name": "Jason's PS5 GitHub Payloads",
+  "sources": [
+    {
+      "name": "CheatRunner",
+      "repo": "notmaj0r/CheatRunner",
+      "exact_assets": ["CheatRunner.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "Web-based PS5 cheat trainer for already-jailbroken PS5 consoles.",
+      "category": "Cheats & Trainers",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "Pegasus DL",
+      "repo": "pegasus-ps5/pegasus-dl",
+      "exact_assets": ["pegasus_dl.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "PS5 payload for direct package downloading and local file management through a web interface.",
+      "category": "Utilities & Tools",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "Kylin Core",
+      "repo": "aydencharles/kylin-core-release",
+      "exact_assets": ["kylin-core.elf"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "PS5 homebrew cheat loader and real-time game modifier.",
+      "category": "Cheats & Trainers",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "WBrowser",
+      "repo": "ps5xploit/WBrowser",
+      "exact_assets": [],
+      "asset_name_contains": ["wbrowser", "browser"],
+      "allowed_extensions": [".elf", ".bin", ".lua"],
+      "description": "PS5 web browser project. Currently distributed upstream as PKG files rather than a PLDMGR-loadable payload.",
+      "category": "Utilities & Tools",
+      "publish_if_compatible": true,
+      "manual_package_links": [
+        "https://www.mediafire.com/file/w63j8iaz80jgt4k/InternetBrowser-PS5.pkg/file",
+        "https://www.mediafire.com/file/lbyvaxn64w97rc1/InternetBrowser-PS5M.pkg/file"
+      ]
+    }
+  ]
+}
