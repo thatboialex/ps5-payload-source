@@ -111,11 +111,12 @@
   },
   "PS5 BAR Tool - Save Data": {
     "repo": "c0w-ar/ps5-bar-tool",
-    "published": false,
+    "published": true,
     "release_tag": "v0.3",
     "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
     "prerelease": false,
-    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the latest GitHub release."
+    "asset": "ps5-bar-tool_savedata.elf",
+    "version": "v0.3"
   },
   "Ghostcontrol": {
     "repo": "thatboialex/ps5-payload-source",

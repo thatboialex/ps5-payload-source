@@ -101,6 +101,15 @@
       "checksum": "d4ce2a9d07f7ece1908523f2390e2d846c4f1ed9c1d5580e489532570b20e6ee"
     },
     {
+      "name": "PS5 BAR Tool - Save Data",
+      "filename": "ps5-bar-tool_savedata.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_savedata.elf",
+      "description": "Parses PS5 Backup and Restore archives and dumps PS4/PS5 save-data files.",
+      "version": "v0.3",
+      "category": "Backup & Recovery",
+      "checksum": "55203af40dac4a5b72f8f7350987104ae9a3ac59d4bec45638d6dfec873131b2"
+    },
+    {
       "name": "RESTORE_PM",
       "filename": "RESTORE_PM.elf",
       "url": "https://github.com/KINGDKAK/RESTORE_PM/releases/download/v1.0/RESTORE_PM.elf",
