@@ -2,6 +2,7 @@ import importlib.util
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "update_payloads.py"
 spec = importlib.util.spec_from_file_location("update_payloads", MODULE_PATH)
@@ -36,6 +37,17 @@ class UpdaterTests(unittest.TestCase):
         h = "a" * 64
         self.assertEqual(updater.normalize_digest("sha256:" + h), h)
         self.assertIsNone(updater.normalize_digest("md5:" + h))
+
+    def test_latest_any_accepts_prerelease(self):
+        prerelease = {"tag_name": "2026.0809.120000", "prerelease": True, "draft": False, "assets": []}
+        older_release = {"tag_name": "2026.0801.120000", "prerelease": False, "draft": False, "assets": []}
+        with mock.patch.object(updater, "get_json", return_value=[prerelease, older_release]):
+            result = updater.latest_release("owner/repo", {"release_mode": "latest_any"})
+        self.assertEqual(result["tag_name"], "2026.0809.120000")
+
+    def test_release_asset_names(self):
+        release = {"assets": [{"name": "tool.zip"}, {"name": "checksums.txt"}, {}]}
+        self.assertEqual(updater.release_asset_names(release), ["tool.zip", "checksums.txt"])
 
     def test_catalog_name_precedes_payloads(self):
         root = Path(__file__).resolve().parents[1]
