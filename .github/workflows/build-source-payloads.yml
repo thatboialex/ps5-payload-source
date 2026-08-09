@@ -35,34 +35,44 @@ jobs:
           set -euo pipefail
           FETCH_SHA="$(git ls-remote https://github.com/ps5-payload-dev/fetchpkg.git HEAD | awk '{print $1}')"
           SHSRV_SHA="$(git ls-remote https://github.com/ps5-payload-dev/shsrv.git HEAD | awk '{print $1}')"
+          GHOST_SHA="$(git ls-remote https://github.com/FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher.git HEAD | awk '{print $1}')"
+          PROSPERO_SHA="$(git ls-remote https://github.com/KINGDKAK/ProsperoPlayer.git HEAD | awk '{print $1}')"
+
           OLD_FETCH="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["fetchpkg"]["commit"])')"
           OLD_SHSRV="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["pkg_install"]["commit"])')"
+          OLD_GHOST="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["Ghostcontrol"]["commit"])')"
+          OLD_PROSPERO="$(python -c 'import json; print(json.load(open("self_built_sources.json"))["ProsperoPlayer"]["commit"])')"
 
           NEED_BUILD=false
-          if [[ "$FETCH_SHA" != "$OLD_FETCH" || "$SHSRV_SHA" != "$OLD_SHSRV" ]]; then
+          if [[ "$FETCH_SHA" != "$OLD_FETCH" || "$SHSRV_SHA" != "$OLD_SHSRV" || "$GHOST_SHA" != "$OLD_GHOST" || "$PROSPERO_SHA" != "$OLD_PROSPERO" ]]; then
             NEED_BUILD=true
           fi
 
           ASSETS="$(gh release view source-built-payloads --json assets --jq '.assets[].name' 2>/dev/null || true)"
-          if ! grep -qx 'fetchpkg.elf' <<<"$ASSETS" || ! grep -qx 'pkg_install.elf' <<<"$ASSETS"; then
-            NEED_BUILD=true
-          fi
+          for asset in fetchpkg.elf pkg_install.elf ghost-control-x10-ds4.elf PS5MediaPlayerPRO.elf; do
+            if ! grep -qx "$asset" <<<"$ASSETS"; then
+              NEED_BUILD=true
+            fi
+          done
 
           echo "fetch_sha=$FETCH_SHA" >> "$GITHUB_OUTPUT"
           echo "shsrv_sha=$SHSRV_SHA" >> "$GITHUB_OUTPUT"
+          echo "ghost_sha=$GHOST_SHA" >> "$GITHUB_OUTPUT"
+          echo "prospero_sha=$PROSPERO_SHA" >> "$GITHUB_OUTPUT"
           echo "need_build=$NEED_BUILD" >> "$GITHUB_OUTPUT"
 
       - name: Install build dependencies
         if: steps.upstream.outputs.need_build == 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential clang-18 lld-18 wget git xxd
+          sudo apt-get install -y build-essential clang-18 lld-18 llvm-18 llvm-18-dev wget git xxd cmake pkg-config
 
-      - name: Install PS5 payload SDK
+      - name: Install PS5 payload SDK and prebuilt libraries
         if: steps.upstream.outputs.need_build == 'true'
         run: |
           wget -q https://github.com/ps5-payload-dev/pacbrew-repo/releases/latest/download/ps5-payload-dev.tar.gz
           sudo tar xf ps5-payload-dev.tar.gz -C /
+          test -x /opt/ps5-payload-sdk/bin/prospero-clang
 
       - name: Fetch upstream source
         if: steps.upstream.outputs.need_build == 'true'
@@ -71,20 +81,20 @@ jobs:
           git -C upstream-fetchpkg checkout "${{ steps.upstream.outputs.fetch_sha }}"
           git clone https://github.com/ps5-payload-dev/shsrv.git upstream-shsrv
           git -C upstream-shsrv checkout "${{ steps.upstream.outputs.shsrv_sha }}"
+          git clone https://github.com/FardinHaque70/Ghostcontrol-PS5-USB-Controller-Patcher.git upstream-ghostcontrol
+          git -C upstream-ghostcontrol checkout "${{ steps.upstream.outputs.ghost_sha }}"
+          git clone https://github.com/KINGDKAK/ProsperoPlayer.git upstream-prospero
+          git -C upstream-prospero checkout "${{ steps.upstream.outputs.prospero_sha }}"
 
-      - name: Build fetchpkg.elf
+      - name: Build source-only ELFs
         if: steps.upstream.outputs.need_build == 'true'
         env:
           PS5_PAYLOAD_SDK: /opt/ps5-payload-sdk
         run: |
           make -C upstream-fetchpkg -f Makefile.ps5 clean all
-
-      - name: Build pkg_install.elf
-        if: steps.upstream.outputs.need_build == 'true'
-        env:
-          PS5_PAYLOAD_SDK: /opt/ps5-payload-sdk
-        run: |
           make -C upstream-shsrv/bundles/pkg_install clean pkg_install.elf
+          make -C upstream-ghostcontrol/payload clean all
+          make -C upstream-prospero clean all
 
       - name: Validate ELF outputs
         if: steps.upstream.outputs.need_build == 'true'
@@ -92,14 +102,15 @@ jobs:
           mkdir -p dist
           cp upstream-fetchpkg/fetchpkg.elf dist/fetchpkg.elf
           cp upstream-shsrv/bundles/pkg_install/pkg_install.elf dist/pkg_install.elf
+          cp upstream-ghostcontrol/payload/ghost-control-x10-ds4.elf dist/ghost-control-x10-ds4.elf
+          cp upstream-prospero/PS5MediaPlayerPRO.elf dist/PS5MediaPlayerPRO.elf
           python - <<'PY'
           from pathlib import Path
-          for name in ("fetchpkg.elf", "pkg_install.elf"):
-              p = Path("dist") / name
+          for p in sorted(Path("dist").glob("*.elf")):
               data = p.read_bytes()
               if len(data) < 4 or data[:4] != b"\x7fELF":
-                  raise SystemExit(f"{name} is not a valid ELF")
-              print(name, len(data), "bytes")
+                  raise SystemExit(f"{p.name} is not a valid ELF")
+              print(p.name, len(data), "bytes")
           PY
           sha256sum dist/*.elf
 
@@ -112,15 +123,22 @@ jobs:
             gh release create source-built-payloads \
               --target main \
               --title "Source-built PS5 payloads" \
-              --notes "Automatically built from the current ps5-payload-dev/fetchpkg and ps5-payload-dev/shsrv source trees."
+              --notes "Automatically built from the current upstream source trees."
           fi
-          gh release upload source-built-payloads dist/fetchpkg.elf dist/pkg_install.elf --clobber
+          gh release upload source-built-payloads \
+            dist/fetchpkg.elf \
+            dist/pkg_install.elf \
+            dist/ghost-control-x10-ds4.elf \
+            dist/PS5MediaPlayerPRO.elf \
+            --clobber
 
       - name: Record built revisions
         if: steps.upstream.outputs.need_build == 'true'
         env:
           FETCH_SHA: ${{ steps.upstream.outputs.fetch_sha }}
           SHSRV_SHA: ${{ steps.upstream.outputs.shsrv_sha }}
+          GHOST_SHA: ${{ steps.upstream.outputs.ghost_sha }}
+          PROSPERO_SHA: ${{ steps.upstream.outputs.prospero_sha }}
         run: |
           python - <<'PY'
           import json, os
@@ -128,6 +146,8 @@ jobs:
           data = json.load(open(path, encoding="utf-8"))
           data["fetchpkg"]["commit"] = os.environ["FETCH_SHA"]
           data["pkg_install"]["commit"] = os.environ["SHSRV_SHA"]
+          data["Ghostcontrol"]["commit"] = os.environ["GHOST_SHA"]
+          data["ProsperoPlayer"]["commit"] = os.environ["PROSPERO_SHA"]
           with open(path, "w", encoding="utf-8") as f:
               json.dump(data, f, indent=2)
               f.write("\n")
