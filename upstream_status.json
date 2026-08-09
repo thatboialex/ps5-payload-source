@@ -55,15 +55,23 @@
   },
   "fetchpkg": {
     "repo": "thatboialex/ps5-payload-source",
-    "published": false,
+    "published": true,
     "upstream_code_repo": "ps5-payload-dev/fetchpkg",
-    "reason": "GitHub API HTTP 404 while checking latest release."
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
+    "prerelease": false,
+    "asset": "fetchpkg.elf",
+    "version": "2026-08-09T15:33:19Z"
   },
   "pkg_install": {
     "repo": "thatboialex/ps5-payload-source",
-    "published": false,
+    "published": true,
     "upstream_code_repo": "ps5-payload-dev/shsrv",
-    "reason": "GitHub API HTTP 404 while checking latest release."
+    "release_tag": "source-built-payloads",
+    "release_url": "https://github.com/thatboialex/ps5-payload-source/releases/tag/source-built-payloads",
+    "prerelease": false,
+    "asset": "pkg_install.elf",
+    "version": "2026-08-09T15:33:18Z"
   },
   "SVT Play Installer": {
     "repo": "ps5-payload-dev/svtplay",

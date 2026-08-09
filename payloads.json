@@ -47,6 +47,24 @@
       "checksum": "a492f9a661e3b8cc1ad59d151bb6e3eca6fd76087a4d5fbbe22c02f5403ff5d5"
     },
     {
+      "name": "fetchpkg",
+      "filename": "fetchpkg.elf",
+      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/source-built-payloads/fetchpkg.elf",
+      "description": "Downloads official Sony PS4/PS5 package updates from JSON manifests. Automatically built from ps5-payload-dev/fetchpkg source.",
+      "version": "2026-08-09T15:33:19Z",
+      "category": "Packages & Downloads",
+      "checksum": "ca47bef64ab66380d56573ee30a3655fc7c3bb02e1ddd8cde2ffcbe4e0afac67"
+    },
+    {
+      "name": "pkg_install",
+      "filename": "pkg_install.elf",
+      "url": "https://github.com/thatboialex/ps5-payload-source/releases/download/source-built-payloads/pkg_install.elf",
+      "description": "PS5 package-install helper payload. Automatically built from ps5-payload-dev/shsrv's pkg_install source.",
+      "version": "2026-08-09T15:33:18Z",
+      "category": "Packages & Downloads",
+      "checksum": "a372966792449ded73db6f159efe8cdd2ecbc3af75b480216e11899d7b1aaa11"
+    },
+    {
       "name": "SVT Play Installer",
       "filename": "svtplay-install.elf",
       "url": "https://github.com/ps5-payload-dev/svtplay/releases/download/v0.2/svtplay-install.elf",
