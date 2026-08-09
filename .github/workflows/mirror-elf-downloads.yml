@@ -24,15 +24,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download and verify every catalog ELF
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
           import hashlib
           import json
-          import os
           import pathlib
           import urllib.request
 
@@ -41,7 +40,6 @@ jobs:
           out.mkdir(exist_ok=True)
           sums = []
 
-          token = os.environ.get('GITHUB_TOKEN', '')
           for item in catalog.get('payloads', []):
               filename = item['filename']
               url = item['url']
@@ -50,10 +48,10 @@ jobs:
               if not filename.lower().endswith('.elf'):
                   raise SystemExit(f'{filename}: catalog entry is not an ELF')
 
-              headers = {'User-Agent': 'ps5-payload-source-mirror/1.0'}
-              if token and 'github.com/' in url:
-                  headers['Authorization'] = f'Bearer {token}'
-              req = urllib.request.Request(url, headers=headers)
+              req = urllib.request.Request(
+                  url,
+                  headers={'User-Agent': 'ps5-payload-source-mirror/1.1'},
+              )
               with urllib.request.urlopen(req, timeout=120) as response:
                   data = response.read()
 
@@ -86,10 +84,10 @@ jobs:
               --title "PLDMGR ELF Downloads" \
               --notes "Verified mirror of every loadable ELF currently listed in payloads.json. Assets are refreshed automatically and validated against the catalog SHA-256 checksums before upload."
           fi
-
           gh release upload "$TAG" dist/*.elf dist/SHA256SUMS.txt --clobber
 
       - name: Verify release asset count
+        id: verify
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -104,3 +102,39 @@ jobs:
           echo "Expected ELF assets: $EXPECTED"
           echo "Release ELF assets:  $ACTUAL"
           test "$ACTUAL" -ge "$EXPECTED"
+          echo "expected=$EXPECTED" >> "$GITHUB_OUTPUT"
+          echo "actual=$ACTUAL" >> "$GITHUB_OUTPUT"
+
+      - name: Record successful mirror status
+        env:
+          EXPECTED: ${{ steps.verify.outputs.expected }}
+          ACTUAL: ${{ steps.verify.outputs.actual }}
+        run: |
+          python - <<'PY'
+          import datetime
+          import json
+          import os
+
+          status = {
+              'status': 'ok',
+              'verified_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'catalog_elf_count': int(os.environ['EXPECTED']),
+              'release_elf_count': int(os.environ['ACTUAL']),
+              'release_tag': 'pldmgr-elf-downloads',
+              'release_url': 'https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads',
+          }
+          with open('mirror_status.json', 'w', encoding='utf-8') as f:
+              json.dump(status, f, indent=2)
+              f.write('\n')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mirror_status.json
+          if git diff --cached --quiet; then
+            echo "Mirror status unchanged."
+            exit 0
+          fi
+          git commit -m "Verify ELF download mirror"
+          git pull --rebase origin main
+          git push
