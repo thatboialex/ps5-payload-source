@@ -4,44 +4,37 @@ Self-updating custom source for [PS5 Payload Manager (PLDMGR)](https://github.co
 
 ## PLDMGR source URL
 
-Add this URL in **Payload Manager → Settings → Manage Sources → Add Source**:
+Use the **v2 source URL** below. It was introduced to bypass stale source caching from the original `payloads.json` URL:
 
 ```text
-https://raw.githubusercontent.com/thatboialex/ps5-payload-source/main/payloads.json
+https://raw.githubusercontent.com/thatboialex/ps5-payload-source/main/payloads-v2.json
 ```
 
-## Tracked projects
+In Payload Manager, remove the old source that points to `payloads.json`, then add the v2 URL above. The source should display as **Jason's PS5 GitHub Payloads v2**.
 
-| Project | Upstream | PLDMGR catalog behavior |
-|---|---|---|
-| CheatRunner | `notmaj0r/CheatRunner` | Published when `CheatRunner.elf` is available |
-| Pegasus DL | `pegasus-ps5/pegasus-dl` | Published when `pegasus_dl.elf` is available |
-| Kylin Core | `aydencharles/kylin-core-release` | Published when `kylin-core.elf` is available |
-| Ghostpad | `StonedModder/Ghostpad` | Published when `ghostpad.elf` is available |
-| WBrowser | `ps5xploit/WBrowser` | Tracked, but not published while upstream only provides PKG installers; automatically becomes eligible if a compatible ELF/BIN/LUA release asset appears |
+## Catalog rules
+
+- Only PLDMGR-loadable payload binaries are published in the catalog.
+- `fetchpkg` and `pkg_install` have been removed from the catalog and their obsolete build workflow has been removed.
+- ProsperoPlayer uses the official `KINGDKAK/ProsperoPlayer` v1.0 release asset `ProsperoPlayer_MediaLauncher.elf`.
+- RetroArch PS5 and JTPlay remain tracked as package-style homebrew but are not exposed as standalone payloads because their ZIP bundles contain required supporting files.
+- WBrowser remains tracked but is not exposed while upstream distributes PKG installers rather than a loadable ELF/BIN/LUA payload.
 
 ## Automatic updates
 
-`.github/workflows/update-payloads.yml` runs every 6 hours and can also be run manually. It:
+`.github/workflows/update-payloads.yml` runs every 6 hours and can also be run manually. It checks configured upstream GitHub releases, updates direct asset URLs and versions, calculates/records SHA-256 checksums, runs tests, and commits catalog changes.
 
-1. Calls GitHub's release API for each tracked repository.
-2. Selects the configured `.elf`, `.bin`, or `.lua` release asset for PLDMGR-compatible projects.
-3. Updates the direct download URL and release version.
-4. Uses GitHub's SHA-256 asset digest when available; otherwise downloads the asset and calculates SHA-256.
-5. Runs unit tests.
-6. Commits only if `payloads.json` or `upstream_status.json` actually changed.
-
-The updater is fail-safe: if GitHub is temporarily unavailable or an expected asset disappears, a previously working payload entry is retained instead of being silently removed.
-
-## WBrowser note
-
-WBrowser currently documents Game and Media `.pkg` installers hosted outside GitHub. A PKG is not a PLDMGR payload, so it is tracked in `upstream_status.json` rather than being presented as a loadable payload. This prevents the source from offering a file PLDMGR cannot execute as a payload.
+`.github/workflows/mirror-elf-downloads.yml` mirrors every loadable ELF in the current catalog into the `pldmgr-elf-downloads` release. It verifies ELF headers and SHA-256 checksums, deletes stale release assets, verifies the exact release/catalog count, and keeps `payloads-v2.json` synchronized with `payloads.json`.
 
 ## Files
 
-- `payloads.json` — the PLDMGR-compatible source file.
+- `payloads.json` — internal generated PLDMGR catalog.
+- `payloads-v2.json` — canonical fresh source URL for the PS5 Payload Manager.
 - `sources.json` — tracked upstream projects and matching rules.
-- `upstream_status.json` — diagnostic status for all tracked projects, including non-payload projects.
+- `upstream_status.json` — diagnostic status for tracked projects.
+- `mirror_status.json` — last verified ELF mirror count and canonical source URL.
+- `self_built_sources.json` — source revision tracking for payloads that still require a self-hosted build.
 - `scripts/update_payloads.py` — GitHub API updater.
-- `.github/workflows/update-payloads.yml` — scheduled/manual updater workflow.
+- `.github/workflows/update-payloads.yml` — scheduled/manual catalog updater.
+- `.github/workflows/mirror-elf-downloads.yml` — exact downloadable ELF mirror and v2 source synchronizer.
 - `tests/test_updater.py` — catalog and asset-selection tests.
