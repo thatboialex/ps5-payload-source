@@ -59,15 +59,15 @@ jobs:
             export SITE_DIR="$GITHUB_WORKSPACE/_site"
             python jailbreak-host/build_host.py
 
-            echo "=== Add offline cache without modifying SlopKit ==="
+            echo "=== Add offline cache around fresh original path ==="
             python jailbreak-host/add_offline_cache.py
 
             echo "=== Validate generated host and upstream identity ==="
             test -f _site/index.html
-            test -f _site/original-slopkit.html
-            test -f _site/slopkit/poops.html
+            test -f _site/original/index.html
+            test -f _site/original/slopkit/poops.html
             test -f _site/payload-menu.json
-            test -f _site/cache-lite-v3.appcache
+            test -f _site/cache-original-v4.appcache
             test -f _site/.nojekyll
             python - <<'PY'
           import hashlib
@@ -76,6 +76,7 @@ jobs:
 
           upstream = Path('_upstream')
           site = Path('_site')
+          original = site / 'original'
 
           def sha256(path):
               h = hashlib.sha256()
@@ -84,31 +85,30 @@ jobs:
                       h.update(chunk)
               return h.hexdigest()
 
-          def assert_tree_identical(rel):
-              a = upstream / rel
-              b = site / rel
-              a_files = sorted(p.relative_to(a) for p in a.rglob('*') if p.is_file())
-              b_files = sorted(p.relative_to(b) for p in b.rglob('*') if p.is_file())
+          def assert_tree_identical(left, right, label):
+              a_files = sorted(p.relative_to(left) for p in left.rglob('*') if p.is_file())
+              b_files = sorted(p.relative_to(right) for p in right.rglob('*') if p.is_file())
               if a_files != b_files:
-                  raise SystemExit(f'{rel}/ file list differs from upstream')
+                  raise SystemExit(f'{label} file list differs from upstream')
               for sub in a_files:
-                  if sha256(a / sub) != sha256(b / sub):
-                      raise SystemExit(f'UPSTREAM MISMATCH: {rel}/{sub}')
-              print(f'Byte-identical upstream tree: {rel}/ ({len(a_files)} files)')
+                  if sha256(left / sub) != sha256(right / sub):
+                      raise SystemExit(f'UPSTREAM MISMATCH: {label}/{sub}')
+              print(f'Byte-identical upstream tree: {label} ({len(a_files)} files)')
 
-          # These are the actual SlopKit exploit/runtime/support trees. They must never be patched.
+          # Root copy stays clean, and the fresh /original/ copy must also be exact.
           for rel in ('slopkit', 'offsets', 'ui'):
-              assert_tree_identical(rel)
+              assert_tree_identical(upstream / rel, site / rel, rel + '/')
+              assert_tree_identical(upstream / rel, original / rel, 'original/' + rel + '/')
 
-          # Also retain the author's original landing page as a byte-identical diagnostic route.
+          if sha256(upstream / 'index.html') != sha256(original / 'index.html'):
+              raise SystemExit('original/index.html differs from upstream')
           if sha256(upstream / 'index.html') != sha256(site / 'original-slopkit.html'):
-              raise SystemExit('original-slopkit.html is not byte-identical to upstream index.html')
+              raise SystemExit('original-slopkit.html differs from upstream')
 
           source = json.load(open('payloads-v2.json', encoding='utf-8'))
           menu = json.load(open(site / 'payload-menu.json', encoding='utf-8'))['payloads']
           expected = len(source.get('payloads', [])) + 1
           names = [p['name'] for p in menu]
-
           if len(menu) != expected:
               raise SystemExit(f'expected {expected} hosted ELFs, got {len(menu)}')
           if names[0] != 'Payload Manager':
@@ -125,26 +125,28 @@ jobs:
                   raise SystemExit(f'bad hosted ELF: {p}')
 
           index = (site / 'index.html').read_text(encoding='utf-8')
-          page = (site / 'slopkit' / 'poops.html').read_text(encoding='utf-8')
+          fresh_page = (original / 'slopkit' / 'poops.html').read_text(encoding='utf-8')
           upstream_page = (upstream / 'slopkit' / 'poops.html').read_text(encoding='utf-8')
-          manifest = (site / 'cache-lite-v3.appcache').read_text(encoding='utf-8')
+          manifest = (site / 'cache-original-v4.appcache').read_text(encoding='utf-8')
 
-          official_run = 'slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17'
-          if official_run not in index:
-              raise SystemExit('custom UI no longer links to the official SlopKit RUN URL')
-          if page != upstream_page:
-              raise SystemExit('poops.html differs from upstream')
-          if 'manifest=' in page.split('>', 1)[0]:
-              raise SystemExit('SlopKit poops.html was mutated with an AppCache manifest')
-          if 'const PAYLOAD_MAX_SIZE = 0x200000;' not in page:
+          fresh_run = 'original/slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17'
+          if fresh_run not in index:
+              raise SystemExit('custom UI does not use fresh original SlopKit path')
+          if fresh_page != upstream_page:
+              raise SystemExit('fresh original poops.html differs from upstream')
+          if 'manifest=' in fresh_page.split('>', 1)[0]:
+              raise SystemExit('fresh SlopKit page was mutated with AppCache')
+          if 'const PAYLOAD_MAX_SIZE = 0x200000;' not in fresh_page:
               raise SystemExit('original SlopKit payload limit changed')
-          if 'Q.get("autoload")' in page:
+          if 'Q.get("autoload")' in fresh_page:
               raise SystemExit('custom autoload logic leaked into original SlopKit')
 
-          if 'manifest="cache-lite-v3.appcache"' not in index:
-              raise SystemExit('custom root page is not attached to offline cache')
+          if 'manifest="cache-original-v4.appcache"' not in index:
+              raise SystemExit('custom root page is not attached to fresh cache')
           if not manifest.startswith('CACHE MANIFEST\n'):
               raise SystemExit('invalid AppCache header')
+          if 'original/slopkit/poops.html original/slopkit/poops.html' not in manifest:
+              raise SystemExit('fresh original SlopKit fallback is missing')
 
           cached_payload_lines = [
               line for line in manifest.splitlines()
@@ -155,8 +157,8 @@ jobs:
               raise SystemExit(f'offline cache must contain only Payload Manager ELF; got {cached_payload_lines}')
 
           print(
-              f'PASS: upstream SlopKit is byte-for-byte unchanged; '
-              f'{len(menu)} hosted ELF files available outside exploit logic'
+              f'PASS: /original/ is a byte-for-byte upstream SlopKit copy; '
+              f'{len(menu)} hosted ELF files remain outside exploit logic'
           )
           PY
 
@@ -258,7 +260,8 @@ jobs:
               'payload_manager_version': build.get('payload_manager_version'),
               'slopkit_commit': build.get('slopkit_commit'),
               'slopkit_runtime_modified': False,
-              'offline_cache': 'original-slopkit-plus-payload-manager',
+              'fresh_original_path': '/original/',
+              'offline_cache': 'fresh-original-slopkit-plus-payload-manager',
               'pages_branch': 'gh-pages',
           }
           Path('jailbreak_pages_status.json').write_text(
