@@ -9,15 +9,16 @@
 <body>
   <header class="topbar">
     <h1>PS5 SlopKit Jailbreak</h1>
-    <p>SlopKit exploit host + your Payload Manager catalog</p>
+    <p>Original SlopKit exploit + your Payload Manager catalog</p>
   </header>
 
   <main>
     <section class="hero">
       <a id="run-jb" class="btn primary" href="slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17">Jailbreak</a>
-      <p class="hint">Run the jailbreak, then choose a payload. Or select a payload below to jailbreak and auto-load it.</p>
+      <a class="btn" href="original-slopkit.html">Original SlopKit Page</a>
+      <p class="hint">The Jailbreak button opens the original upstream SlopKit exploit unchanged. The payload cards below are hosted ELF files only and do not modify or hook the exploit.</p>
       <div class="stats">
-        <span>{{PAYLOAD_COUNT}} loadable ELFs</span>
+        <span>{{PAYLOAD_COUNT}} hosted ELFs</span>
         <span>Payload Manager {{PLDMGR_VERSION}}</span>
       </div>
     </section>
@@ -26,7 +27,7 @@
       <div class="section-heading">
         <div>
           <h2>Payloads</h2>
-          <p>Payload Manager is pinned first. The remaining entries mirror your live PLDMGR catalog.</p>
+          <p>Payload Manager is pinned first. These files mirror your live PLDMGR catalog while SlopKit itself remains untouched.</p>
         </div>
       </div>
       <div class="payload-grid">
