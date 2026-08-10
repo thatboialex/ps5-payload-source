@@ -14,8 +14,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: ps5-jailbreak-host-build
@@ -38,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          rm -f jailbreak_host_diagnostics.log jailbreak_host_result.txt pages_enablement.log jailbreak_pages_status.json
+          rm -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
 
           (
             set -euo pipefail
@@ -67,29 +65,36 @@ jobs:
           import json
           from pathlib import Path
 
+          source = json.load(open('payloads-v2.json', encoding='utf-8'))
           menu = json.load(open('_site/payload-menu.json', encoding='utf-8'))['payloads']
+          expected = len(source.get('payloads', [])) + 1
           names = [p['name'] for p in menu]
-          if len(menu) != 14:
-              raise SystemExit(f'expected 14 loadable ELFs (Payload Manager + 13 catalog), got {len(menu)}')
+
+          if len(menu) != expected:
+              raise SystemExit(f'expected {expected} loadable ELFs (Payload Manager + catalog), got {len(menu)}')
           if names[0] != 'Payload Manager':
               raise SystemExit('Payload Manager is not pinned first')
           if {'fetchpkg', 'pkg_install'}.intersection(names):
               raise SystemExit('removed payload unexpectedly returned')
           if 'ProsperoPlayer' not in names or 'Ghostcontrol' not in names:
               raise SystemExit('required payload missing from generated menu')
+
           manager = menu[0]
           if not manager['filename'].lower().startswith('pldmgr'):
               raise SystemExit(f'unexpected Payload Manager filename: {manager["filename"]}')
+
           for item in menu:
               p = Path('_site/payloads') / item['filename']
               if not p.is_file() or p.read_bytes()[:4] != b'\x7fELF':
                   raise SystemExit(f'bad ELF: {p}')
+
           page = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
           for item in menu:
               if item['filename'] not in page:
                   raise SystemExit(f'missing SlopKit menu entry: {item["filename"]}')
           if 'Q.get("autoload")' not in page:
               raise SystemExit('autoload hook missing from SlopKit page')
+
           print(f'Validated {len(menu)} ELF payloads; Payload Manager asset: {manager["filename"]}')
           PY
 
@@ -114,60 +119,6 @@ jobs:
           echo "result=$RC" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Enable or verify GitHub Pages
-        if: steps.host.outputs.result == '0'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          set +e
-          : > pages_enablement.log
-          {
-            echo "Checking existing Pages site..."
-            if gh api "repos/${GITHUB_REPOSITORY}/pages" > pages-current.json 2>pages-get.err; then
-              echo "Pages already enabled. Ensuring gh-pages / root is the source."
-              gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" \
-                -f build_type=legacy \
-                -f 'source[branch]=gh-pages' \
-                -f 'source[path]=/' > pages-update.out 2>pages-update.err
-              PAGE_RC=$?
-            else
-              echo "Pages not enabled yet. Attempting first-time enablement."
-              cat pages-get.err
-              gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" \
-                -f build_type=legacy \
-                -f 'source[branch]=gh-pages' \
-                -f 'source[path]=/' > pages-create.out 2>pages-create.err
-              PAGE_RC=$?
-            fi
-
-            echo "Pages API result code: $PAGE_RC"
-            [ -s pages-create.err ] && cat pages-create.err
-            [ -s pages-update.err ] && cat pages-update.err
-          } 2>&1 | tee pages_enablement.log
-          exit 0
-
-      - name: Record Pages API result
-        if: steps.host.outputs.result == '0'
-        shell: bash
-        run: |
-          set -euo pipefail
-          RC=99
-          if grep -q 'Pages API result code: 0' pages_enablement.log; then RC=0; fi
-          python - "$RC" <<'PY'
-          import datetime, json, pathlib, sys
-          rc = int(sys.argv[1])
-          status = {
-              'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'pages_api_success': rc == 0,
-              'pages_api_exit_code': rc,
-              'pages_branch': 'gh-pages',
-              'pages_path': '/',
-              'expected_url': 'https://thatboialex.github.io/ps5-payload-source/',
-          }
-          pathlib.Path('jailbreak_pages_status.json').write_text(json.dumps(status, indent=2) + '\n', encoding='utf-8')
-          PY
-
       - name: Commit build status and diagnostics
         if: always()
         shell: bash
@@ -176,14 +127,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
-          [ -f pages_enablement.log ] && git add -f pages_enablement.log
-          [ -f jailbreak_pages_status.json ] && git add jailbreak_pages_status.json
           [ -f jailbreak_host_status.json ] && git add jailbreak_host_status.json
           if git diff --cached --quiet; then
             echo "No diagnostic/status changes."
             exit 0
           fi
-          git commit -m "Record jailbreak host deployment status"
+          git commit -m "Record jailbreak host build result"
           git pull --rebase origin main
           git push origin main
 
