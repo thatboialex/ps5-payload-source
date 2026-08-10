@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build, validate and publish gh-pages
+      - name: Build, cache, validate and publish gh-pages
         id: host
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,10 +58,14 @@ jobs:
             export SITE_DIR="$GITHUB_WORKSPACE/_site"
             python jailbreak-host/build_host.py
 
+            echo "=== Add full PS5 offline AppCache ==="
+            python jailbreak-host/add_offline_cache.py
+
             echo "=== Validate generated host ==="
             test -f _site/index.html
             test -f _site/slopkit/poops.html
             test -f _site/payload-menu.json
+            test -f _site/cache.appcache
             test -f _site/.nojekyll
             python - <<'PY'
           import json
@@ -90,14 +94,27 @@ jobs:
               if not p.is_file() or p.read_bytes()[:4] != b'\x7fELF':
                   raise SystemExit(f'bad ELF: {p}')
 
+          index = Path('_site/index.html').read_text(encoding='utf-8')
           page = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
+          manifest = Path('_site/cache.appcache').read_text(encoding='utf-8')
+
+          if 'manifest="cache.appcache"' not in index:
+              raise SystemExit('root page is not attached to AppCache')
+          if 'manifest="../cache.appcache"' not in page:
+              raise SystemExit('SlopKit page is not attached to AppCache')
+          if 'offline-cache-status' not in index:
+              raise SystemExit('offline cache status UI is missing')
+          if not manifest.startswith('CACHE MANIFEST\n'):
+              raise SystemExit('invalid AppCache header')
           for item in menu:
               if item['filename'] not in page:
                   raise SystemExit(f'missing SlopKit menu entry: {item["filename"]}')
+              if f'payloads/{item["filename"]}' not in manifest:
+                  raise SystemExit(f'payload missing from offline cache: {item["filename"]}')
           if 'Q.get("autoload")' not in page:
               raise SystemExit('autoload hook missing from SlopKit page')
 
-          print(f'Validated {len(menu)} ELF payloads; Payload Manager asset: {manager["filename"]}')
+          print(f'Validated {len(menu)} ELF payloads with full offline AppCache; Payload Manager asset: {manager["filename"]}')
           PY
 
             echo "=== Publish complete static copy to gh-pages ==="
@@ -124,8 +141,6 @@ jobs:
       - name: Configure GitHub Pages
         if: steps.host.outputs.result == '0'
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload GitHub Pages artifact
         if: steps.host.outputs.result == '0'
@@ -199,6 +214,7 @@ jobs:
               'payload_count': build.get('payload_count'),
               'payload_manager_version': build.get('payload_manager_version'),
               'slopkit_commit': build.get('slopkit_commit'),
+              'offline_cache': 'appcache-full-site',
               'pages_branch': 'gh-pages',
           }
           Path('jailbreak_pages_status.json').write_text(
