@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PS5 SlopKit Jailbreak</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>PS5 SlopKit Jailbreak</h1>
+    <p>SlopKit exploit host + your Payload Manager catalog</p>
+  </header>
+
+  <main>
+    <section class="hero">
+      <a id="run-jb" class="btn primary" href="slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17">Jailbreak</a>
+      <p class="hint">Run the jailbreak, then choose a payload. Or select a payload below to jailbreak and auto-load it.</p>
+      <div class="stats">
+        <span>{{PAYLOAD_COUNT}} loadable ELFs</span>
+        <span>Payload Manager {{PLDMGR_VERSION}}</span>
+      </div>
+    </section>
+
+    <section class="payload-section">
+      <div class="section-heading">
+        <div>
+          <h2>Payloads</h2>
+          <p>Payload Manager is pinned first. The remaining entries mirror your live PLDMGR catalog.</p>
+        </div>
+      </div>
+      <div class="payload-grid">
+{{PAYLOAD_CARDS}}
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>SlopKit upstream: <a href="https://github.com/jordyidk/slopkit">jordyidk/slopkit</a> · UI inspired by <a href="https://github.com/idlesauce/umtx2">idlesauce/umtx2</a></p>
+    <p>SlopKit credits: Egy, Sonic, Yenyen, Gezine, Echostretch, Ufm42, TheFloW, John Törnblom, Flatz and PS5 R&amp;D Discord.</p>
+    <p class="build">Host build: {{BUILD_TIME}}</p>
+  </footer>
+
+  <script>
+  (function () {
+    try {
+      var first = document.getElementById('run-jb');
+      if (first) first.focus();
+    } catch (e) {}
+  })();
+  </script>
+</body>
+</html>
