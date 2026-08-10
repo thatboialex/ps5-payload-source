@@ -58,14 +58,14 @@ jobs:
             export SITE_DIR="$GITHUB_WORKSPACE/_site"
             python jailbreak-host/build_host.py
 
-            echo "=== Add full PS5 offline AppCache ==="
+            echo "=== Add quota-safe PS5 offline AppCache ==="
             python jailbreak-host/add_offline_cache.py
 
             echo "=== Validate generated host ==="
             test -f _site/index.html
             test -f _site/slopkit/poops.html
             test -f _site/payload-menu.json
-            test -f _site/cache.appcache
+            test -f _site/cache-lite-v2.appcache
             test -f _site/.nojekyll
             python - <<'PY'
           import json
@@ -96,25 +96,53 @@ jobs:
 
           index = Path('_site/index.html').read_text(encoding='utf-8')
           page = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
-          manifest = Path('_site/cache.appcache').read_text(encoding='utf-8')
+          manifest_path = Path('_site/cache-lite-v2.appcache')
+          manifest = manifest_path.read_text(encoding='utf-8')
 
-          if 'manifest="cache.appcache"' not in index:
-              raise SystemExit('root page is not attached to AppCache')
-          if 'manifest="../cache.appcache"' not in page:
-              raise SystemExit('SlopKit page is not attached to AppCache')
+          if 'manifest="cache-lite-v2.appcache"' not in index:
+              raise SystemExit('root page is not attached to the quota-safe AppCache')
+          if 'manifest="../cache-lite-v2.appcache"' not in page:
+              raise SystemExit('SlopKit page is not attached to the quota-safe AppCache')
           if 'offline-cache-status' not in index:
               raise SystemExit('offline cache status UI is missing')
           if not manifest.startswith('CACHE MANIFEST\n'):
               raise SystemExit('invalid AppCache header')
-          for item in menu:
-              if item['filename'] not in page:
-                  raise SystemExit(f'missing SlopKit menu entry: {item["filename"]}')
-              if f'payloads/{item["filename"]}' not in manifest:
-                  raise SystemExit(f'payload missing from offline cache: {item["filename"]}')
+          if 'FALLBACK:\nslopkit/poops.html slopkit/poops.html' not in manifest:
+              raise SystemExit('SlopKit query fallback is missing')
           if 'Q.get("autoload")' not in page:
               raise SystemExit('autoload hook missing from SlopKit page')
 
-          print(f'Validated {len(menu)} ELF payloads with full offline AppCache; Payload Manager asset: {manager["filename"]}')
+          cached_payload_lines = [
+              line for line in manifest.splitlines()
+              if line.startswith('payloads/') and line.lower().endswith('.elf')
+          ]
+          expected_manager_line = f'payloads/{manager["filename"]}'
+          if cached_payload_lines != [expected_manager_line]:
+              raise SystemExit(
+                  f'offline cache must contain only Payload Manager ELF; got {cached_payload_lines}'
+              )
+
+          # Sum actual files listed in CACHE (query aliases and ./ do not add file bytes).
+          in_cache = False
+          cache_bytes = 0
+          for line in manifest.splitlines():
+              if line == 'CACHE:':
+                  in_cache = True
+                  continue
+              if line in {'FALLBACK:', 'NETWORK:'}:
+                  in_cache = False
+              if not in_cache or not line or line == './' or '?' in line:
+                  continue
+              p = Path('_site') / line
+              if p.is_file():
+                  cache_bytes += p.stat().st_size
+          if cache_bytes > 4_500_000:
+              raise SystemExit(f'quota-safe cache too large: {cache_bytes} bytes')
+
+          print(
+              f'Validated {len(menu)} menu ELFs; offline cache is {cache_bytes} bytes '
+              f'and contains SlopKit + {manager["filename"]} only'
+          )
           PY
 
             echo "=== Publish complete static copy to gh-pages ==="
@@ -214,7 +242,7 @@ jobs:
               'payload_count': build.get('payload_count'),
               'payload_manager_version': build.get('payload_manager_version'),
               'slopkit_commit': build.get('slopkit_commit'),
-              'offline_cache': 'appcache-full-site',
+              'offline_cache': 'quota-safe-slopkit-plus-payload-manager',
               'pages_branch': 'gh-pages',
           }
           Path('jailbreak_pages_status.json').write_text(
