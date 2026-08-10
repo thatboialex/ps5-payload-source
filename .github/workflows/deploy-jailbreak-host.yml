@@ -121,6 +121,7 @@ jobs:
         shell: bash
         run: |
           set +e
+          : > pages_enablement.log
           {
             echo "Checking existing Pages site..."
             if gh api "repos/${GITHUB_REPOSITORY}/pages" > pages-current.json 2>pages-get.err; then
@@ -141,29 +142,12 @@ jobs:
             fi
 
             echo "Pages API result code: $PAGE_RC"
-            if [ -s pages-create.err ]; then cat pages-create.err; fi
-            if [ -s pages-update.err ]; then cat pages-update.err; fi
-
-            python - <<'PY'
-          import datetime, json, os, pathlib
-          rc = int(os.environ.get('PAGE_RC_FOR_PY', '99'))
-          status = {
-              'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'pages_api_success': rc == 0,
-              'pages_api_exit_code': rc,
-              'pages_branch': 'gh-pages',
-              'pages_path': '/',
-              'expected_url': 'https://thatboialex.github.io/ps5-payload-source/',
-          }
-          pathlib.Path('jailbreak_pages_status.json').write_text(json.dumps(status, indent=2) + '\n', encoding='utf-8')
-          PY
+            [ -s pages-create.err ] && cat pages-create.err
+            [ -s pages-update.err ] && cat pages-update.err
           } 2>&1 | tee pages_enablement.log
           exit 0
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PAGE_RC_FOR_PY: ${{ env.PAGE_RC_FOR_PY }}
 
-      - name: Record Pages API result accurately
+      - name: Record Pages API result
         if: steps.host.outputs.result == '0'
         shell: bash
         run: |
