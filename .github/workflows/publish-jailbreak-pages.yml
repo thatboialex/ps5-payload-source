@@ -1,0 +1,106 @@
+name: Publish PS5 SlopKit jailbreak page
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7 */6 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "jailbreak-host/**"
+      - "payloads-v2.json"
+      - ".github/workflows/publish-jailbreak-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build SlopKit host
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _upstream _site
+          git clone --depth 1 https://github.com/jordyidk/slopkit.git _upstream
+          export SLOPKIT_SHA="$(git -C _upstream rev-parse HEAD)"
+          mkdir -p _site
+          cp -a _upstream/. _site/
+          rm -rf _site/.git
+          export SITE_DIR="$GITHUB_WORKSPACE/_site"
+          python jailbreak-host/build_host.py
+
+      - name: Validate generated host
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          test -f _site/main.css
+          test -f _site/.nojekyll
+          test -f _site/slopkit/poops.html
+          test -f _site/payload-menu.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source = json.load(open('payloads-v2.json', encoding='utf-8'))
+          menu = json.load(open('_site/payload-menu.json', encoding='utf-8'))['payloads']
+          expected = len(source.get('payloads', [])) + 1
+          names = [p['name'] for p in menu]
+
+          if len(menu) != expected:
+              raise SystemExit(f'expected {expected} loadable ELFs, got {len(menu)}')
+          if not menu or menu[0]['name'] != 'Payload Manager':
+              raise SystemExit('Payload Manager must be first')
+          if {'fetchpkg', 'pkg_install'}.intersection(names):
+              raise SystemExit('removed payload unexpectedly returned')
+
+          for item in menu:
+              p = Path('_site/payloads') / item['filename']
+              if not p.is_file():
+                  raise SystemExit(f'missing payload: {p}')
+              data = p.read_bytes()
+              if data[:4] != b'\x7fELF':
+                  raise SystemExit(f'not an ELF: {p}')
+
+          page = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
+          if 'Q.get("autoload")' not in page:
+              raise SystemExit('SlopKit autoload hook missing')
+          for item in menu:
+              if item['filename'] not in page:
+                  raise SystemExit(f'missing payload menu entry: {item["filename"]}')
+
+          print(f'Validated {len(menu)} ELF payloads including Payload Manager')
+          PY
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
