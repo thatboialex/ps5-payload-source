@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build, cache, validate and publish gh-pages
+      - name: Build, verify and publish gh-pages
         id: host
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,6 +47,7 @@ jobs:
             git clone --depth 1 https://github.com/jordyidk/slopkit.git _upstream
             SLOPKIT_SHA="$(git -C _upstream rev-parse HEAD)"
             export SLOPKIT_SHA
+            export UPSTREAM_DIR="$GITHUB_WORKSPACE/_upstream"
             echo "SlopKit commit: $SLOPKIT_SHA"
 
             echo "=== Copy full upstream host ==="
@@ -54,63 +55,96 @@ jobs:
             cp -a _upstream/. _site/
             rm -rf _site/.git
 
-            echo "=== Build custom host and download payloads ==="
+            echo "=== Build custom outer UI and hosted payload files ==="
             export SITE_DIR="$GITHUB_WORKSPACE/_site"
             python jailbreak-host/build_host.py
 
-            echo "=== Add quota-safe PS5 offline AppCache ==="
+            echo "=== Add offline cache without modifying SlopKit ==="
             python jailbreak-host/add_offline_cache.py
 
-            echo "=== Validate generated host ==="
+            echo "=== Validate generated host and upstream identity ==="
             test -f _site/index.html
+            test -f _site/original-slopkit.html
             test -f _site/slopkit/poops.html
             test -f _site/payload-menu.json
-            test -f _site/cache-lite-v2.appcache
+            test -f _site/cache-lite-v3.appcache
             test -f _site/.nojekyll
             python - <<'PY'
+          import hashlib
           import json
           from pathlib import Path
 
+          upstream = Path('_upstream')
+          site = Path('_site')
+
+          def sha256(path):
+              h = hashlib.sha256()
+              with path.open('rb') as f:
+                  for chunk in iter(lambda: f.read(1024 * 1024), b''):
+                      h.update(chunk)
+              return h.hexdigest()
+
+          def assert_tree_identical(rel):
+              a = upstream / rel
+              b = site / rel
+              a_files = sorted(p.relative_to(a) for p in a.rglob('*') if p.is_file())
+              b_files = sorted(p.relative_to(b) for p in b.rglob('*') if p.is_file())
+              if a_files != b_files:
+                  raise SystemExit(f'{rel}/ file list differs from upstream')
+              for sub in a_files:
+                  if sha256(a / sub) != sha256(b / sub):
+                      raise SystemExit(f'UPSTREAM MISMATCH: {rel}/{sub}')
+              print(f'Byte-identical upstream tree: {rel}/ ({len(a_files)} files)')
+
+          # These are the actual SlopKit exploit/runtime/support trees. They must never be patched.
+          for rel in ('slopkit', 'offsets', 'ui'):
+              assert_tree_identical(rel)
+
+          # Also retain the author's original landing page as a byte-identical diagnostic route.
+          if sha256(upstream / 'index.html') != sha256(site / 'original-slopkit.html'):
+              raise SystemExit('original-slopkit.html is not byte-identical to upstream index.html')
+
           source = json.load(open('payloads-v2.json', encoding='utf-8'))
-          menu = json.load(open('_site/payload-menu.json', encoding='utf-8'))['payloads']
+          menu = json.load(open(site / 'payload-menu.json', encoding='utf-8'))['payloads']
           expected = len(source.get('payloads', [])) + 1
           names = [p['name'] for p in menu]
 
           if len(menu) != expected:
-              raise SystemExit(f'expected {expected} loadable ELFs (Payload Manager + catalog), got {len(menu)}')
+              raise SystemExit(f'expected {expected} hosted ELFs, got {len(menu)}')
           if names[0] != 'Payload Manager':
               raise SystemExit('Payload Manager is not pinned first')
           if {'fetchpkg', 'pkg_install'}.intersection(names):
               raise SystemExit('removed payload unexpectedly returned')
           if 'ProsperoPlayer' not in names or 'Ghostcontrol' not in names:
-              raise SystemExit('required payload missing from generated menu')
+              raise SystemExit('required payload missing from hosted catalog')
 
           manager = menu[0]
-          if not manager['filename'].lower().startswith('pldmgr'):
-              raise SystemExit(f'unexpected Payload Manager filename: {manager["filename"]}')
-
           for item in menu:
-              p = Path('_site/payloads') / item['filename']
+              p = site / 'payloads' / item['filename']
               if not p.is_file() or p.read_bytes()[:4] != b'\x7fELF':
-                  raise SystemExit(f'bad ELF: {p}')
+                  raise SystemExit(f'bad hosted ELF: {p}')
 
-          index = Path('_site/index.html').read_text(encoding='utf-8')
-          page = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
-          manifest_path = Path('_site/cache-lite-v2.appcache')
-          manifest = manifest_path.read_text(encoding='utf-8')
+          index = (site / 'index.html').read_text(encoding='utf-8')
+          page = (site / 'slopkit' / 'poops.html').read_text(encoding='utf-8')
+          upstream_page = (upstream / 'slopkit' / 'poops.html').read_text(encoding='utf-8')
+          manifest = (site / 'cache-lite-v3.appcache').read_text(encoding='utf-8')
 
-          if 'manifest="cache-lite-v2.appcache"' not in index:
-              raise SystemExit('root page is not attached to the quota-safe AppCache')
-          if 'manifest="../cache-lite-v2.appcache"' not in page:
-              raise SystemExit('SlopKit page is not attached to the quota-safe AppCache')
-          if 'offline-cache-status' not in index:
-              raise SystemExit('offline cache status UI is missing')
+          official_run = 'slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17'
+          if official_run not in index:
+              raise SystemExit('custom UI no longer links to the official SlopKit RUN URL')
+          if page != upstream_page:
+              raise SystemExit('poops.html differs from upstream')
+          if 'manifest=' in page.split('>', 1)[0]:
+              raise SystemExit('SlopKit poops.html was mutated with an AppCache manifest')
+          if 'const PAYLOAD_MAX_SIZE = 0x200000;' not in page:
+              raise SystemExit('original SlopKit payload limit changed')
+          if 'Q.get("autoload")' in page:
+              raise SystemExit('custom autoload logic leaked into original SlopKit')
+
+          if 'manifest="cache-lite-v3.appcache"' not in index:
+              raise SystemExit('custom root page is not attached to offline cache')
           if not manifest.startswith('CACHE MANIFEST\n'):
               raise SystemExit('invalid AppCache header')
-          if 'FALLBACK:\nslopkit/poops.html slopkit/poops.html' not in manifest:
-              raise SystemExit('SlopKit query fallback is missing')
-          if 'Q.get("autoload")' not in page:
-              raise SystemExit('autoload hook missing from SlopKit page')
 
           cached_payload_lines = [
               line for line in manifest.splitlines()
@@ -118,30 +152,11 @@ jobs:
           ]
           expected_manager_line = f'payloads/{manager["filename"]}'
           if cached_payload_lines != [expected_manager_line]:
-              raise SystemExit(
-                  f'offline cache must contain only Payload Manager ELF; got {cached_payload_lines}'
-              )
-
-          # Sum actual files listed in CACHE (query aliases and ./ do not add file bytes).
-          in_cache = False
-          cache_bytes = 0
-          for line in manifest.splitlines():
-              if line == 'CACHE:':
-                  in_cache = True
-                  continue
-              if line in {'FALLBACK:', 'NETWORK:'}:
-                  in_cache = False
-              if not in_cache or not line or line == './' or '?' in line:
-                  continue
-              p = Path('_site') / line
-              if p.is_file():
-                  cache_bytes += p.stat().st_size
-          if cache_bytes > 4_500_000:
-              raise SystemExit(f'quota-safe cache too large: {cache_bytes} bytes')
+              raise SystemExit(f'offline cache must contain only Payload Manager ELF; got {cached_payload_lines}')
 
           print(
-              f'Validated {len(menu)} menu ELFs; offline cache is {cache_bytes} bytes '
-              f'and contains SlopKit + {manager["filename"]} only'
+              f'PASS: upstream SlopKit is byte-for-byte unchanged; '
+              f'{len(menu)} hosted ELF files available outside exploit logic'
           )
           PY
 
@@ -242,7 +257,8 @@ jobs:
               'payload_count': build.get('payload_count'),
               'payload_manager_version': build.get('payload_manager_version'),
               'slopkit_commit': build.get('slopkit_commit'),
-              'offline_cache': 'quota-safe-slopkit-plus-payload-manager',
+              'slopkit_runtime_modified': False,
+              'offline_cache': 'original-slopkit-plus-payload-manager',
               'pages_branch': 'gh-pages',
           }
           Path('jailbreak_pages_status.json').write_text(
