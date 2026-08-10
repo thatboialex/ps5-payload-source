@@ -18,9 +18,11 @@ OK Ghostcontrol: ghost-control-x10-ds4.elf (371536 bytes)
 OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
 OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
 Built host with 14 payloads (68687432 bytes)
+=== Add full PS5 offline AppCache ===
+Offline AppCache ready: 89 URLs, 14 ELF payloads, 68687432 payload bytes, version 32db0acc5edc
 === Validate generated host ===
-Validated 14 ELF payloads; Payload Manager asset: pldmgr_v0.5.1.elf
+Validated 14 ELF payloads with full offline AppCache; Payload Manager asset: pldmgr_v0.5.1.elf
 === Publish complete static copy to gh-pages ===
 To https://github.com/thatboialex/ps5-payload-source.git
- + 8426a53...6e053b3 gh-pages -> gh-pages (forced update)
+ + 6e053b3...3fd0748 gh-pages -> gh-pages (forced update)
 === SUCCESS ===
