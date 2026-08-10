@@ -19,3 +19,12 @@ OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
 OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
 Built host with 14 payloads (68687432 bytes)
 === Validate generated host ===
+Validated 14 ELF payloads; Payload Manager asset: pldmgr_v0.5.1.elf
+=== Publish complete static copy to gh-pages ===
+remote: 
+remote: Create a pull request for 'gh-pages' on GitHub by visiting:        
+remote:      https://github.com/thatboialex/ps5-payload-source/pull/new/gh-pages        
+remote: 
+To https://github.com/thatboialex/ps5-payload-source.git
+ * [new branch]      gh-pages -> gh-pages
+=== SUCCESS ===
