@@ -20,6 +20,5 @@ OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
 Built UI with 14 hosted ELFs (68687432 bytes)
 SlopKit exploit/runtime files were not patched
 === Add quota-safe PS5 offline AppCache ===
-Quota-safe AppCache ready: 34 cache URLs, 4141773 cached bytes, Payload Manager only, version fd9c14a302b5
+Offline cache ready: 33 URLs, 4144461 bytes, original SlopKit untouched, version 8c5ff4c822ac
 === Validate generated host ===
-autoload hook missing from SlopKit page
