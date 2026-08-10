@@ -11,17 +11,13 @@ on:
 permissions:
   contents: write
   pages: write
-  id-token: write
 
 concurrency:
   group: github-pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  enable-and-verify:
     runs-on: ubuntu-latest
     steps:
       - name: Check out verified gh-pages host
@@ -30,41 +26,53 @@ jobs:
           ref: gh-pages
           fetch-depth: 0
 
-      - name: Configure GitHub Pages
-        id: pages
-        continue-on-error: true
-        uses: actions/configure-pages@v6
-        with:
-          enablement: true
+      - name: Create or configure Pages site from gh-pages
+        id: pagesapi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set +e
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/pages"
+          HDR=(-H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${GH_TOKEN}" -H "X-GitHub-Api-Version: 2026-03-10")
 
-      - name: Upload Pages artifact
-        id: upload
-        if: steps.pages.outcome == 'success'
-        continue-on-error: true
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
+          GET_CODE="$(curl -sS -o /tmp/pages-get.json -w '%{http_code}' "${HDR[@]}" "$API" || true)"
+          echo "Initial Pages GET: $GET_CODE"
+          cat /tmp/pages-get.json || true
 
-      - name: Deploy GitHub Pages
-        id: deployment
-        if: steps.upload.outcome == 'success'
-        continue-on-error: true
-        uses: actions/deploy-pages@v5
+          ACTION="none"
+          API_CODE="$GET_CODE"
+          if [ "$GET_CODE" = "404" ]; then
+            ACTION="create"
+            API_CODE="$(curl -sS -o /tmp/pages-write.json -w '%{http_code}' -X POST "${HDR[@]}" "$API" \
+              -d '{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}' || true)"
+          elif [ "$GET_CODE" = "200" ]; then
+            ACTION="update"
+            API_CODE="$(curl -sS -o /tmp/pages-write.json -w '%{http_code}' -X PUT "${HDR[@]}" "$API" \
+              -d '{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"},"https_enforced":true}' || true)"
+          fi
+
+          echo "Pages API action: $ACTION"
+          echo "Pages API result: $API_CODE"
+          cat /tmp/pages-write.json 2>/dev/null || true
+          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
+          echo "initial_code=$GET_CODE" >> "$GITHUB_OUTPUT"
+          echo "api_code=$API_CODE" >> "$GITHUB_OUTPUT"
+          exit 0
 
       - name: Verify public endpoint and record status
         if: always()
         env:
-          CONFIGURE_OUTCOME: ${{ steps.pages.outcome }}
-          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
-          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          API_ACTION: ${{ steps.pagesapi.outputs.action }}
+          INITIAL_CODE: ${{ steps.pagesapi.outputs.initial_code }}
+          API_CODE: ${{ steps.pagesapi.outputs.api_code }}
         shell: bash
         run: |
           set +e
           EXPECTED="https://thatboialex.github.io/ps5-payload-source/"
           PUBLIC_OK=false
           HTTP_CODE=""
-          for attempt in 1 2 3 4 5 6; do
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
             HTTP_CODE="$(curl -L -sS -o /tmp/pages-index.html -w '%{http_code}' "$EXPECTED" || true)"
             if [ "$HTTP_CODE" = "200" ] && grep -q "PS5 SlopKit Jailbreak" /tmp/pages-index.html; then
               PUBLIC_OK=true
@@ -79,12 +87,24 @@ jobs:
           import json
           import os
 
+          write_body = ""
+          try:
+              write_body = open('/tmp/pages-write.json', encoding='utf-8').read()[:2000]
+          except Exception:
+              pass
+          get_body = ""
+          try:
+              get_body = open('/tmp/pages-get.json', encoding='utf-8').read()[:2000]
+          except Exception:
+              pass
+
           status = {
               "checked_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "configure_pages": os.environ.get("CONFIGURE_OUTCOME", ""),
-              "upload_pages_artifact": os.environ.get("UPLOAD_OUTCOME", ""),
-              "deploy_pages": os.environ.get("DEPLOY_OUTCOME", ""),
-              "deployment_output_url": os.environ.get("PAGE_URL", ""),
+              "pages_api_action": os.environ.get("API_ACTION", ""),
+              "initial_pages_api_code": os.environ.get("INITIAL_CODE", ""),
+              "pages_api_result_code": os.environ.get("API_CODE", ""),
+              "pages_api_get_body": get_body,
+              "pages_api_write_body": write_body,
               "expected_url": "https://thatboialex.github.io/ps5-payload-source/",
               "public_reachable": os.environ.get("PUBLIC_OK", "false") == "true",
               "http_code": os.environ.get("HTTP_CODE", ""),
