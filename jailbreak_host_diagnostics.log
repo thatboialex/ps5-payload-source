@@ -2,7 +2,7 @@
 Cloning into '_upstream'...
 SlopKit commit: 6b9309f52e7d1fddf9eb913993a80b36fb58a6f3
 === Copy full upstream host ===
-=== Build custom host and download payloads ===
+=== Build custom outer UI and hosted payload files ===
 OK Payload Manager: pldmgr_v0.5.1.elf (2410768 bytes)
 OK CheatRunner: CheatRunner.elf (9502120 bytes)
 OK Pegasus DL: pegasus_dl.elf (20333680 bytes)
@@ -19,6 +19,14 @@ OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
 OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
 Built UI with 14 hosted ELFs (68687432 bytes)
 SlopKit exploit/runtime files were not patched
-=== Add quota-safe PS5 offline AppCache ===
-Offline cache ready: 33 URLs, 4144461 bytes, original SlopKit untouched, version 8c5ff4c822ac
-=== Validate generated host ===
+=== Add offline cache without modifying SlopKit ===
+Offline cache ready: 33 URLs, 4144461 bytes, original SlopKit untouched, version 2d8855c82c5d
+=== Validate generated host and upstream identity ===
+Byte-identical upstream tree: slopkit/ (11 files)
+Byte-identical upstream tree: offsets/ (14 files)
+Byte-identical upstream tree: ui/ (25 files)
+PASS: upstream SlopKit is byte-for-byte unchanged; 14 hosted ELF files available outside exploit logic
+=== Publish complete static copy to gh-pages ===
+To https://github.com/thatboialex/ps5-payload-source.git
+ + 988dfad...d6b20c6 gh-pages -> gh-pages (forced update)
+=== SUCCESS ===
