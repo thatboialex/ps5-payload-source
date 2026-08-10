@@ -19,10 +19,10 @@ OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
 OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
 Built host with 14 payloads (68687432 bytes)
 === Add full PS5 offline AppCache ===
-Offline AppCache ready: 89 URLs, 14 ELF payloads, 68687432 payload bytes, version 525d1d93a93b
+Offline AppCache ready: 89 URLs, 14 ELF payloads, 68687432 payload bytes, version b03fc99766a6
 === Validate generated host ===
 Validated 14 ELF payloads with full offline AppCache; Payload Manager asset: pldmgr_v0.5.1.elf
 === Publish complete static copy to gh-pages ===
 To https://github.com/thatboialex/ps5-payload-source.git
- + 3fd0748...37e7b46 gh-pages -> gh-pages (forced update)
+ + 37e7b46...05ab288 gh-pages -> gh-pages (forced update)
 === SUCCESS ===
