@@ -9,7 +9,7 @@ on:
       - ".github/workflows/publish-github-pages.yml"
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -28,17 +28,82 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: gh-pages
+          fetch-depth: 0
 
       - name: Configure GitHub Pages
+        id: pages
+        continue-on-error: true
         uses: actions/configure-pages@v6
         with:
           enablement: true
 
       - name: Upload Pages artifact
+        id: upload
+        if: steps.pages.outcome == 'success'
+        continue-on-error: true
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
 
       - name: Deploy GitHub Pages
         id: deployment
+        if: steps.upload.outcome == 'success'
+        continue-on-error: true
         uses: actions/deploy-pages@v5
+
+      - name: Verify public endpoint and record status
+        if: always()
+        env:
+          CONFIGURE_OUTCOME: ${{ steps.pages.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        shell: bash
+        run: |
+          set +e
+          EXPECTED="https://thatboialex.github.io/ps5-payload-source/"
+          PUBLIC_OK=false
+          HTTP_CODE=""
+          for attempt in 1 2 3 4 5 6; do
+            HTTP_CODE="$(curl -L -sS -o /tmp/pages-index.html -w '%{http_code}' "$EXPECTED" || true)"
+            if [ "$HTTP_CODE" = "200" ] && grep -q "PS5 SlopKit Jailbreak" /tmp/pages-index.html; then
+              PUBLIC_OK=true
+              break
+            fi
+            sleep 5
+          done
+
+          python - <<'PY'
+          import datetime
+          import json
+          import os
+
+          status = {
+              "checked_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "configure_pages": os.environ.get("CONFIGURE_OUTCOME", ""),
+              "upload_pages_artifact": os.environ.get("UPLOAD_OUTCOME", ""),
+              "deploy_pages": os.environ.get("DEPLOY_OUTCOME", ""),
+              "deployment_output_url": os.environ.get("PAGE_URL", ""),
+              "expected_url": "https://thatboialex.github.io/ps5-payload-source/",
+              "public_reachable": os.environ.get("PUBLIC_OK", "false") == "true",
+              "http_code": os.environ.get("HTTP_CODE", ""),
+          }
+          with open("pages-deploy-status.json", "w", encoding="utf-8") as f:
+              json.dump(status, f, indent=2)
+              f.write("\n")
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages-deploy-status.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record GitHub Pages deployment status"
+            git push origin HEAD:gh-pages
+          fi
+        env:
+          CONFIGURE_OUTCOME: ${{ steps.pages.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          PUBLIC_OK: ${{ env.PUBLIC_OK }}
+          HTTP_CODE: ${{ env.HTTP_CODE }}
