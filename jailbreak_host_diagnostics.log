@@ -3,6 +3,7 @@ Cloning into '_upstream'...
 SlopKit commit: 6b9309f52e7d1fddf9eb913993a80b36fb58a6f3
 === Copy full upstream host ===
 === Build custom outer UI and hosted payload files ===
+ERROR: Custom landing page is not using fresh untouched SlopKit path
 OK Payload Manager: pldmgr_v0.5.1.elf (2410768 bytes)
 OK CheatRunner: CheatRunner.elf (9502120 bytes)
 OK Pegasus DL: pegasus_dl.elf (20333680 bytes)
@@ -17,16 +18,9 @@ OK PS5 BAR Tool - Save Data: ps5-bar-tool_savedata.elf (111080 bytes)
 OK Ghostcontrol: ghost-control-x10-ds4.elf (371536 bytes)
 OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
 OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
-Built UI with 14 hosted ELFs (68687432 bytes)
-SlopKit exploit/runtime files were not patched
-=== Add offline cache without modifying SlopKit ===
-Offline cache ready: 33 URLs, 4144461 bytes, original SlopKit untouched, version 2d8855c82c5d
-=== Validate generated host and upstream identity ===
-Byte-identical upstream tree: slopkit/ (11 files)
-Byte-identical upstream tree: offsets/ (14 files)
-Byte-identical upstream tree: ui/ (25 files)
-PASS: upstream SlopKit is byte-for-byte unchanged; 14 hosted ELF files available outside exploit logic
-=== Publish complete static copy to gh-pages ===
-To https://github.com/thatboialex/ps5-payload-source.git
- + 988dfad...d6b20c6 gh-pages -> gh-pages (forced update)
-=== SUCCESS ===
+Traceback (most recent call last):
+  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 186, in <module>
+    main()
+  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 153, in main
+    raise RuntimeError("Custom landing page is not using fresh untouched SlopKit path")
+RuntimeError: Custom landing page is not using fresh untouched SlopKit path
