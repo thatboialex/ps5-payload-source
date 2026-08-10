@@ -17,12 +17,9 @@ OK PS5 BAR Tool - Save Data: ps5-bar-tool_savedata.elf (111080 bytes)
 OK Ghostcontrol: ghost-control-x10-ds4.elf (371536 bytes)
 OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
 OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
-Built host with 14 payloads (68687432 bytes)
+Built UI with 14 hosted ELFs (68687432 bytes)
+SlopKit exploit/runtime files were not patched
 === Add quota-safe PS5 offline AppCache ===
-Quota-safe AppCache ready: 34 cache URLs, 4152235 cached bytes, Payload Manager only, version 802c8483386d
+Quota-safe AppCache ready: 34 cache URLs, 4141773 cached bytes, Payload Manager only, version fd9c14a302b5
 === Validate generated host ===
-Validated 14 menu ELFs; offline cache is 4152235 bytes and contains SlopKit + pldmgr_v0.5.1.elf only
-=== Publish complete static copy to gh-pages ===
-To https://github.com/thatboialex/ps5-payload-source.git
- + 05ab288...988dfad gh-pages -> gh-pages (forced update)
-=== SUCCESS ===
+autoload hook missing from SlopKit page
