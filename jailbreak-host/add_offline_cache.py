@@ -11,7 +11,7 @@ import urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SITE = pathlib.Path(os.environ.get("SITE_DIR", ROOT / "_site"))
-MANIFEST_NAME = "cache-lite-v3.appcache"
+MANIFEST_NAME = "cache-original-v4.appcache"
 MAX_CACHE_BYTES = 4_500_000
 
 STATUS_BLOCK = r'''
@@ -30,28 +30,24 @@ STATUS_BLOCK = r'''
       setStatus('Offline cache unavailable in this browser', 'warn');
       return;
     }
-    ac.addEventListener('checking', function () {
-      setStatus('Offline cache: checking...', '');
-    });
+    ac.addEventListener('checking', function () { setStatus('Offline cache: checking...', ''); });
     ac.addEventListener('downloading', function () {
-      setStatus('Offline cache: downloading original SlopKit + Payload Manager...', '');
+      setStatus('Offline cache: downloading untouched SlopKit + Payload Manager...', '');
     });
     ac.addEventListener('progress', function (e) {
       if (e && e.total) setStatus('Offline cache: ' + e.loaded + ' / ' + e.total + ' files', '');
     });
     ac.addEventListener('cached', function () {
-      setStatus('Offline jailbreak ready ✓ Original SlopKit + Payload Manager cached', 'ready');
+      setStatus('Offline jailbreak ready ✓ Untouched SlopKit + Payload Manager cached', 'ready');
     });
-    ac.addEventListener('noupdate', function () {
-      setStatus('Offline jailbreak ready ✓', 'ready');
-    });
+    ac.addEventListener('noupdate', function () { setStatus('Offline jailbreak ready ✓', 'ready'); });
     ac.addEventListener('updateready', function () {
       try { ac.swapCache(); } catch (e) {}
       setStatus('Offline cache updated ✓ Reload once', 'ready');
     });
     ac.addEventListener('error', function () {
       if (typeof navigator !== 'undefined' && navigator.onLine === false)
-        setStatus('Offline mode ✓ Using cached original SlopKit', 'ready');
+        setStatus('Offline mode ✓ Using cached untouched SlopKit', 'ready');
       else
         setStatus('Offline cache incomplete — keep internet on and reload', 'warn');
     });
@@ -101,7 +97,6 @@ def patch_root_only() -> None:
         text = text[:head_pos] + STATUS_CSS + "\n" + text[head_pos:]
         body_pos = text.lower().rfind("</body>")
         text = text[:body_pos] + STATUS_BLOCK + "\n" + text[body_pos:]
-
     path.write_text(text, encoding="utf-8")
 
 
@@ -141,8 +136,6 @@ def main() -> None:
     if not SITE.is_dir():
         raise RuntimeError(f"Site directory does not exist: {SITE}")
 
-    # Critical rule: only the custom top-level UI gets a manifest attribute.
-    # Files under slopkit/ are upstream exploit/runtime and must remain byte-for-byte unchanged.
     patch_root_only()
 
     menu = json.loads((SITE / "payload-menu.json").read_text(encoding="utf-8"))["payloads"]
@@ -152,15 +145,19 @@ def main() -> None:
     if not manager_path.is_file():
         raise RuntimeError("Payload Manager ELF is missing")
 
+    original = SITE / "original"
+    if not (original / "index.html").is_file() or not (original / "slopkit" / "poops.html").is_file():
+        raise RuntimeError("Fresh untouched SlopKit copy is missing")
+
     files: list[pathlib.Path] = [
         SITE / "index.html",
         SITE / "main.css",
-        SITE / "original-slopkit.html",
         SITE / "payload-menu.json",
         manager_path,
+        original / "index.html",
     ]
-    add_tree(files, SITE / "slopkit")
-    add_tree(files, SITE / "offsets")
+    add_tree(files, original / "slopkit")
+    add_tree(files, original / "offsets")
 
     unique: list[pathlib.Path] = []
     seen_paths: set[pathlib.Path] = set()
@@ -172,9 +169,7 @@ def main() -> None:
 
     cached_bytes = sum(p.stat().st_size for p in unique)
     if cached_bytes > MAX_CACHE_BYTES:
-        raise RuntimeError(
-            f"Offline cache would be {cached_bytes} bytes, above safe ceiling {MAX_CACHE_BYTES}"
-        )
+        raise RuntimeError(f"Offline cache would be {cached_bytes} bytes, above safe ceiling {MAX_CACHE_BYTES}")
 
     version = hashlib.sha256()
     urls: list[str] = ["./"]
@@ -185,7 +180,7 @@ def main() -> None:
         urls.append(urllib.parse.quote(rel, safe="/._-~"))
 
     query_urls: set[str] = set()
-    for html_path in (SITE / "original-slopkit.html", SITE / "slopkit" / "poops.html"):
+    for html_path in (original / "index.html", original / "slopkit" / "poops.html"):
         query_urls.update(query_urls_from_file(html_path))
     for url in sorted(query_urls):
         version.update(b"QUERY\0" + url.encode("utf-8") + b"\n")
@@ -201,13 +196,13 @@ def main() -> None:
     manifest = [
         "CACHE MANIFEST",
         f"# version: {version.hexdigest()}",
-        f"# Original upstream SlopKit + Payload Manager only ({cached_bytes} bytes)",
+        f"# Fresh untouched upstream SlopKit + Payload Manager only ({cached_bytes} bytes)",
         "",
         "CACHE:",
         *cache_urls,
         "",
         "FALLBACK:",
-        "slopkit/poops.html slopkit/poops.html",
+        "original/slopkit/poops.html original/slopkit/poops.html",
         "",
         "NETWORK:",
         "*",
@@ -217,7 +212,7 @@ def main() -> None:
 
     print(
         f"Offline cache ready: {len(cache_urls)} URLs, {cached_bytes} bytes, "
-        f"original SlopKit untouched, version {version.hexdigest()[:12]}"
+        f"fresh untouched SlopKit path, version {version.hexdigest()[:12]}"
     )
 
 
