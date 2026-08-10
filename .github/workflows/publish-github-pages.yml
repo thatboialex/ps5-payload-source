@@ -72,6 +72,7 @@ jobs:
             fi
             sleep 5
           done
+          export PUBLIC_OK HTTP_CODE
 
           python - <<'PY'
           import datetime
@@ -100,10 +101,3 @@ jobs:
             git commit -m "Record GitHub Pages deployment status"
             git push origin HEAD:gh-pages
           fi
-        env:
-          CONFIGURE_OUTCOME: ${{ steps.pages.outcome }}
-          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
-          DEPLOY_OUTCOME: ${{ steps.deployment.outcome }}
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
-          PUBLIC_OK: ${{ env.PUBLIC_OK }}
-          HTTP_CODE: ${{ env.HTTP_CODE }}
