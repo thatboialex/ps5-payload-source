@@ -1,0 +1,141 @@
+name: Build and deploy PS5 jailbreak host
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "51 */6 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "jailbreak-host/**"
+      - "payloads-v2.json"
+      - ".github/workflows/deploy-jailbreak-host.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ps5-jailbreak-host
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out host repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone upstream SlopKit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _upstream _site
+          git clone --depth 1 https://github.com/jordyidk/slopkit.git _upstream
+          SLOPKIT_SHA="$(git -C _upstream rev-parse HEAD)"
+          echo "SLOPKIT_SHA=$SLOPKIT_SHA" >> "$GITHUB_ENV"
+          mkdir -p _site
+          cp -a _upstream/. _site/
+          rm -rf _site/.git
+
+      - name: Build custom host and download payloads
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SITE_DIR: ${{ github.workspace }}/_site
+          SLOPKIT_SHA: ${{ env.SLOPKIT_SHA }}
+        run: python jailbreak-host/build_host.py
+
+      - name: Validate generated host
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          test -f _site/slopkit/poops.html
+          test -f _site/payloads/pldmgr.elf
+          test -f _site/payload-menu.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          menu = json.load(open('_site/payload-menu.json', encoding='utf-8'))['payloads']
+          if len(menu) < 2:
+              raise SystemExit('payload menu unexpectedly empty')
+          names = [p['name'] for p in menu]
+          if names[0] != 'Payload Manager':
+              raise SystemExit('Payload Manager is not pinned first')
+          forbidden = {'fetchpkg', 'pkg_install'}
+          if forbidden.intersection(names):
+              raise SystemExit('removed payload unexpectedly returned')
+          for item in menu:
+              p = Path('_site/payloads') / item['filename']
+              if not p.is_file() or p.read_bytes()[:4] != b'\x7fELF':
+                  raise SystemExit(f"bad ELF: {p}")
+          html = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
+          for item in menu:
+              if item['filename'] not in html:
+                  raise SystemExit(f"missing menu entry: {item['filename']}")
+          print(f"Validated {len(menu)} payloads")
+          PY
+
+      - name: Publish complete copy to gh-pages branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PUBLISH="$(mktemp -d)"
+          cp -a _site/. "$PUBLISH/"
+          cd "$PUBLISH"
+          git init
+          git checkout -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -Af
+          git commit -m "Publish PS5 jailbreak host"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin gh-pages
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Record successful host build
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jailbreak_host_status.json
+          if git diff --cached --quiet; then
+            echo "Host status unchanged."
+            exit 0
+          fi
+          git commit -m "Update jailbreak host status"
+          git pull --rebase origin main
+          git push origin main
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+        continue-on-error: true
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
