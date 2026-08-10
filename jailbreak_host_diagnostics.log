@@ -1,0 +1,21 @@
+=== Clone upstream SlopKit ===
+Cloning into '_upstream'...
+SlopKit commit: 6b9309f52e7d1fddf9eb913993a80b36fb58a6f3
+=== Copy full upstream host ===
+=== Build custom host and download payloads ===
+OK Payload Manager: pldmgr_v0.5.1.elf (2410768 bytes)
+OK CheatRunner: CheatRunner.elf (9502120 bytes)
+OK Pegasus DL: pegasus_dl.elf (20333680 bytes)
+OK Kylin Core: kylin-core.elf (6015672 bytes)
+OK Ghostpad: ghostpad.elf (274312 bytes)
+OK Kura Loader: kura-loader.elf (8245176 bytes)
+OK SVT Play Installer: svtplay-install.elf (148520 bytes)
+OK PS5 BAR Tool - Info: ps5-bar-tool_info.elf (111024 bytes)
+OK PS5 BAR Tool - Main Segments: ps5-bar-tool_dump_main_segments.elf (111024 bytes)
+OK PS5 BAR Tool - Full Dump: ps5-bar-tool_dump_all.elf (111080 bytes)
+OK PS5 BAR Tool - Save Data: ps5-bar-tool_savedata.elf (111080 bytes)
+OK Ghostcontrol: ghost-control-x10-ds4.elf (371536 bytes)
+OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
+OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
+Built host with 14 payloads (68687432 bytes)
+=== Validate generated host ===
