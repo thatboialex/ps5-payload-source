@@ -1,4 +1,4 @@
-name: Build PS5 jailbreak host
+name: Build and deploy PS5 jailbreak host
 
 on:
   workflow_dispatch:
@@ -14,9 +14,11 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: ps5-jailbreak-host-build
+  group: ps5-jailbreak-host
   cancel-in-progress: true
 
 jobs:
@@ -119,6 +121,18 @@ jobs:
           echo "result=$RC" >> "$GITHUB_OUTPUT"
           exit 0
 
+      - name: Configure GitHub Pages
+        if: steps.host.outputs.result == '0'
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload GitHub Pages artifact
+        if: steps.host.outputs.result == '0'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
       - name: Commit build status and diagnostics
         if: always()
         shell: bash
@@ -141,3 +155,64 @@ jobs:
         shell: bash
         run: |
           test "${{ steps.host.outputs.result }}" = "0"
+
+  deploy-pages:
+    needs: build-and-publish
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Check out repository for status record
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Record live Pages URL
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime
+          import json
+          import os
+          from pathlib import Path
+
+          build = {}
+          p = Path('jailbreak_host_status.json')
+          if p.exists():
+              build = json.loads(p.read_text(encoding='utf-8'))
+          status = {
+              'status': 'live',
+              'deployed_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'page_url': os.environ['PAGE_URL'],
+              'payload_count': build.get('payload_count'),
+              'payload_manager_version': build.get('payload_manager_version'),
+              'slopkit_commit': build.get('slopkit_commit'),
+              'pages_branch': 'gh-pages',
+          }
+          Path('jailbreak_pages_status.json').write_text(
+              json.dumps(status, indent=2) + '\n', encoding='utf-8'
+          )
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jailbreak_pages_status.json
+          if git diff --cached --quiet; then
+            echo "Pages status unchanged."
+            exit 0
+          fi
+          git commit -m "Record live jailbreak Pages URL"
+          git pull --rebase origin main
+          git push origin main
