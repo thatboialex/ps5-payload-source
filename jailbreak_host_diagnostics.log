@@ -22,5 +22,5 @@ Built host with 14 payloads (68687432 bytes)
 Validated 14 ELF payloads; Payload Manager asset: pldmgr_v0.5.1.elf
 === Publish complete static copy to gh-pages ===
 To https://github.com/thatboialex/ps5-payload-source.git
- + 29c6b55...54eb567 gh-pages -> gh-pages (forced update)
+ + 54eb567...8426a53 gh-pages -> gh-pages (forced update)
 === SUCCESS ===
