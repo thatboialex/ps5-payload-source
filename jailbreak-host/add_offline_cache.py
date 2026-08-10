@@ -135,6 +135,9 @@ def query_urls_from_html() -> set[str]:
         text = path.read_text(encoding="utf-8", errors="ignore")
         base = path.relative_to(SITE).parent.as_posix()
         for raw in attr.findall(text):
+            # HTML attributes contain escaped ampersands; AppCache must store the
+            # actual request URL that WebKit will make after parsing the markup.
+            raw = html.unescape(raw)
             if raw.startswith(("http://", "https://", "//", "data:", "javascript:", "#")):
                 continue
             target = raw
