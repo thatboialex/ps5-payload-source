@@ -1,6 +1,6 @@
 # PS5 Payload Source
 
-Self-updating custom source for [PS5 Payload Manager (PLDMGR)](https://github.com/itsPLK/ps5-payload-manager).
+Self-updating custom source for [PS5 Payload Manager (PLDMGR)](https://github.com/itsPLK/ps5-payload-manager), plus a SlopKit-based PS5 jailbreak host.
 
 ## PLDMGR source URL
 
@@ -11,6 +11,39 @@ https://raw.githubusercontent.com/thatboialex/ps5-payload-source/main/payloads-v
 ```
 
 In Payload Manager, remove the old source that points to `payloads.json`, then add the v2 URL above. The source should display as **Jason's PS5 GitHub Payloads v2**.
+
+## PS5 SlopKit jailbreak host
+
+The repository contains an automated PS5 jailbreak page built from the full upstream [jordyidk/slopkit](https://github.com/jordyidk/slopkit) host. The landing page and post-jailbreak payload menu use an idlesauce/UMTX2-inspired dark card layout.
+
+Expected public URL:
+
+```text
+https://thatboialex.github.io/ps5-payload-source/
+```
+
+### One-time GitHub Pages setup
+
+GitHub blocks first-time Pages enablement from the repository workflow token, so the repository owner must enable it once:
+
+1. Open this repository on GitHub.
+2. Go to **Settings** -> **Pages**.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+4. Save/confirm the setting if GitHub presents a confirmation.
+5. Run the **Publish PS5 SlopKit jailbreak page** workflow from the **Actions** tab, or make a relevant host/catalog change to trigger it.
+
+After that one-time setting, `.github/workflows/publish-jailbreak-pages.yml` builds and deploys the site automatically.
+
+### What the jailbreak page contains
+
+- A **Jailbreak** button that enters the SlopKit exploit flow.
+- **Payload Manager** pinned as the first payload.
+- Every loadable payload currently in `payloads-v2.json`.
+- Local copies of the ELF files inside the generated Pages artifact, validated for the ELF signature.
+- A **Jailbreak + Load** action for each payload. The build patches SlopKit so the selected `autoload=<filename>` ELF is sent to SlopKit's localhost ELF loader after it becomes ready.
+- Dynamic validation: the expected page payload count is always `1 + the current payloads-v2.json count`, so future payload additions do not require a hard-coded count change.
+
+The build currently validates Payload Manager plus the full active PLDMGR catalog and rejects removed `fetchpkg` / `pkg_install` entries if they ever reappear.
 
 ## Catalog rules
 
@@ -26,6 +59,10 @@ In Payload Manager, remove the old source that points to `payloads.json`, then a
 
 `.github/workflows/mirror-elf-downloads.yml` mirrors every loadable ELF in the current catalog into the `pldmgr-elf-downloads` release. It verifies ELF headers and SHA-256 checksums, deletes stale release assets, verifies the exact release/catalog count, and keeps `payloads-v2.json` synchronized with `payloads.json`.
 
+`.github/workflows/deploy-jailbreak-host.yml` also maintains a complete static `gh-pages` branch copy of the SlopKit host as a build/mirror artifact.
+
+`.github/workflows/publish-jailbreak-pages.yml` is the canonical GitHub Pages deployment. It rebuilds the host from upstream SlopKit, bundles Payload Manager and the live payload catalog, validates every ELF and menu entry, uploads the Pages artifact, and deploys it through GitHub Pages.
+
 ## Files
 
 - `payloads.json` — internal generated PLDMGR catalog.
@@ -35,6 +72,10 @@ In Payload Manager, remove the old source that points to `payloads.json`, then a
 - `mirror_status.json` — last verified ELF mirror count and canonical source URL.
 - `self_built_sources.json` — source revision tracking for payloads that still require a self-hosted build.
 - `scripts/update_payloads.py` — GitHub API updater.
+- `jailbreak-host/build_host.py` — SlopKit host builder and payload-menu patcher.
+- `jailbreak-host/index.html` / `main.css` — idlesauce-inspired landing-page overlay.
 - `.github/workflows/update-payloads.yml` — scheduled/manual catalog updater.
 - `.github/workflows/mirror-elf-downloads.yml` — exact downloadable ELF mirror and v2 source synchronizer.
+- `.github/workflows/deploy-jailbreak-host.yml` — static `gh-pages` branch builder/mirror.
+- `.github/workflows/publish-jailbreak-pages.yml` — native GitHub Pages publisher.
 - `tests/test_updater.py` — catalog and asset-selection tests.
