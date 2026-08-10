@@ -14,6 +14,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: ps5-jailbreak-host-build
@@ -36,7 +38,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          rm -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
+          rm -f jailbreak_host_diagnostics.log jailbreak_host_result.txt pages_enablement.log jailbreak_pages_status.json
 
           (
             set -euo pipefail
@@ -60,6 +62,7 @@ jobs:
             test -f _site/index.html
             test -f _site/slopkit/poops.html
             test -f _site/payload-menu.json
+            test -f _site/.nojekyll
             python - <<'PY'
           import json
           from pathlib import Path
@@ -85,6 +88,8 @@ jobs:
           for item in menu:
               if item['filename'] not in page:
                   raise SystemExit(f'missing SlopKit menu entry: {item["filename"]}')
+          if 'Q.get("autoload")' not in page:
+              raise SystemExit('autoload hook missing from SlopKit page')
           print(f'Validated {len(menu)} ELF payloads; Payload Manager asset: {manager["filename"]}')
           PY
 
@@ -109,6 +114,76 @@ jobs:
           echo "result=$RC" >> "$GITHUB_OUTPUT"
           exit 0
 
+      - name: Enable or verify GitHub Pages
+        if: steps.host.outputs.result == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set +e
+          {
+            echo "Checking existing Pages site..."
+            if gh api "repos/${GITHUB_REPOSITORY}/pages" > pages-current.json 2>pages-get.err; then
+              echo "Pages already enabled. Ensuring gh-pages / root is the source."
+              gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" \
+                -f build_type=legacy \
+                -f 'source[branch]=gh-pages' \
+                -f 'source[path]=/' > pages-update.out 2>pages-update.err
+              PAGE_RC=$?
+            else
+              echo "Pages not enabled yet. Attempting first-time enablement."
+              cat pages-get.err
+              gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" \
+                -f build_type=legacy \
+                -f 'source[branch]=gh-pages' \
+                -f 'source[path]=/' > pages-create.out 2>pages-create.err
+              PAGE_RC=$?
+            fi
+
+            echo "Pages API result code: $PAGE_RC"
+            if [ -s pages-create.err ]; then cat pages-create.err; fi
+            if [ -s pages-update.err ]; then cat pages-update.err; fi
+
+            python - <<'PY'
+          import datetime, json, os, pathlib
+          rc = int(os.environ.get('PAGE_RC_FOR_PY', '99'))
+          status = {
+              'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'pages_api_success': rc == 0,
+              'pages_api_exit_code': rc,
+              'pages_branch': 'gh-pages',
+              'pages_path': '/',
+              'expected_url': 'https://thatboialex.github.io/ps5-payload-source/',
+          }
+          pathlib.Path('jailbreak_pages_status.json').write_text(json.dumps(status, indent=2) + '\n', encoding='utf-8')
+          PY
+          } 2>&1 | tee pages_enablement.log
+          exit 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAGE_RC_FOR_PY: ${{ env.PAGE_RC_FOR_PY }}
+
+      - name: Record Pages API result accurately
+        if: steps.host.outputs.result == '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          RC=99
+          if grep -q 'Pages API result code: 0' pages_enablement.log; then RC=0; fi
+          python - "$RC" <<'PY'
+          import datetime, json, pathlib, sys
+          rc = int(sys.argv[1])
+          status = {
+              'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'pages_api_success': rc == 0,
+              'pages_api_exit_code': rc,
+              'pages_branch': 'gh-pages',
+              'pages_path': '/',
+              'expected_url': 'https://thatboialex.github.io/ps5-payload-source/',
+          }
+          pathlib.Path('jailbreak_pages_status.json').write_text(json.dumps(status, indent=2) + '\n', encoding='utf-8')
+          PY
+
       - name: Commit build status and diagnostics
         if: always()
         shell: bash
@@ -117,14 +192,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
-          if [ -f jailbreak_host_status.json ]; then
-            git add jailbreak_host_status.json
-          fi
+          [ -f pages_enablement.log ] && git add -f pages_enablement.log
+          [ -f jailbreak_pages_status.json ] && git add jailbreak_pages_status.json
+          [ -f jailbreak_host_status.json ] && git add jailbreak_host_status.json
           if git diff --cached --quiet; then
             echo "No diagnostic/status changes."
             exit 0
           fi
-          git commit -m "Record jailbreak host build result"
+          git commit -m "Record jailbreak host deployment status"
           git pull --rebase origin main
           git push origin main
 
