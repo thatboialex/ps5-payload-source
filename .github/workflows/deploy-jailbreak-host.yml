@@ -1,4 +1,4 @@
-name: Build and deploy PS5 jailbreak host
+name: Build PS5 jailbreak host
 
 on:
   workflow_dispatch:
@@ -14,15 +14,13 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: ps5-jailbreak-host
+  group: ps5-jailbreak-host-build
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - name: Check out host repository
@@ -30,112 +28,106 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Clone upstream SlopKit
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf _upstream _site
-          git clone --depth 1 https://github.com/jordyidk/slopkit.git _upstream
-          SLOPKIT_SHA="$(git -C _upstream rev-parse HEAD)"
-          echo "SLOPKIT_SHA=$SLOPKIT_SHA" >> "$GITHUB_ENV"
-          mkdir -p _site
-          cp -a _upstream/. _site/
-          rm -rf _site/.git
-
-      - name: Build custom host and download payloads
+      - name: Build, validate and publish gh-pages
+        id: host
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SITE_DIR: ${{ github.workspace }}/_site
-          SLOPKIT_SHA: ${{ env.SLOPKIT_SHA }}
-        run: python jailbreak-host/build_host.py
-
-      - name: Validate generated host
         shell: bash
         run: |
-          set -euo pipefail
-          test -f _site/index.html
-          test -f _site/slopkit/poops.html
-          test -f _site/payloads/pldmgr.elf
-          test -f _site/payload-menu.json
-          python - <<'PY'
+          set +e
+          rm -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
+
+          (
+            set -euo pipefail
+            echo "=== Clone upstream SlopKit ==="
+            rm -rf _upstream _site
+            git clone --depth 1 https://github.com/jordyidk/slopkit.git _upstream
+            SLOPKIT_SHA="$(git -C _upstream rev-parse HEAD)"
+            export SLOPKIT_SHA
+            echo "SlopKit commit: $SLOPKIT_SHA"
+
+            echo "=== Copy full upstream host ==="
+            mkdir -p _site
+            cp -a _upstream/. _site/
+            rm -rf _site/.git
+
+            echo "=== Build custom host and download payloads ==="
+            export SITE_DIR="$GITHUB_WORKSPACE/_site"
+            python jailbreak-host/build_host.py
+
+            echo "=== Validate generated host ==="
+            test -f _site/index.html
+            test -f _site/slopkit/poops.html
+            test -f _site/payloads/pldmgr.elf
+            test -f _site/payload-menu.json
+            python - <<'PY'
           import json
           from pathlib import Path
+
           menu = json.load(open('_site/payload-menu.json', encoding='utf-8'))['payloads']
-          if len(menu) < 2:
-              raise SystemExit('payload menu unexpectedly empty')
           names = [p['name'] for p in menu]
+          if len(menu) != 14:
+              raise SystemExit(f'expected 14 loadable ELFs (Payload Manager + 13 catalog), got {len(menu)}')
           if names[0] != 'Payload Manager':
               raise SystemExit('Payload Manager is not pinned first')
-          forbidden = {'fetchpkg', 'pkg_install'}
-          if forbidden.intersection(names):
+          if {'fetchpkg', 'pkg_install'}.intersection(names):
               raise SystemExit('removed payload unexpectedly returned')
+          if 'ProsperoPlayer' not in names or 'Ghostcontrol' not in names:
+              raise SystemExit('required payload missing from generated menu')
           for item in menu:
               p = Path('_site/payloads') / item['filename']
               if not p.is_file() or p.read_bytes()[:4] != b'\x7fELF':
-                  raise SystemExit(f"bad ELF: {p}")
-          html = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
+                  raise SystemExit(f'bad ELF: {p}')
+          page = Path('_site/slopkit/poops.html').read_text(encoding='utf-8')
           for item in menu:
-              if item['filename'] not in html:
-                  raise SystemExit(f"missing menu entry: {item['filename']}")
-          print(f"Validated {len(menu)} payloads")
+              if item['filename'] not in page:
+                  raise SystemExit(f'missing SlopKit menu entry: {item["filename"]}')
+          print(f'Validated {len(menu)} ELF payloads')
           PY
 
-      - name: Publish complete copy to gh-pages branch
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            echo "=== Publish complete static copy to gh-pages ==="
+            PUBLISH="$(mktemp -d)"
+            cp -a _site/. "$PUBLISH/"
+            cd "$PUBLISH"
+            git init -q
+            git checkout -q -b gh-pages
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -Af
+            git commit -q -m "Publish PS5 jailbreak host"
+            git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+            git push --force origin gh-pages
+            echo "=== SUCCESS ==="
+          ) > jailbreak_host_diagnostics.log 2>&1
+
+          RC=$?
+          cat jailbreak_host_diagnostics.log
+          echo "$RC" > jailbreak_host_result.txt
+          echo "result=$RC" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Commit build status and diagnostics
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
-          PUBLISH="$(mktemp -d)"
-          cp -a _site/. "$PUBLISH/"
-          cd "$PUBLISH"
-          git init
-          git checkout -b gh-pages
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -Af
-          git commit -m "Publish PS5 jailbreak host"
-          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin gh-pages
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: _site
-
-      - name: Record successful host build
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jailbreak_host_status.json
+          git add -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
+          if [ -f jailbreak_host_status.json ]; then
+            git add jailbreak_host_status.json
+          fi
           if git diff --cached --quiet; then
-            echo "Host status unchanged."
+            echo "No diagnostic/status changes."
             exit 0
           fi
-          git commit -m "Update jailbreak host status"
+          git commit -m "Record jailbreak host build result"
           git pull --rebase origin main
           git push origin main
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: Configure GitHub Pages
-        id: pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-        continue-on-error: true
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Fail job if host publication failed
+        if: always()
+        shell: bash
+        run: |
+          test "${{ steps.host.outputs.result }}" = "0"
