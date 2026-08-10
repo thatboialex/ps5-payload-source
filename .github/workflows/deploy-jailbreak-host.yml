@@ -59,7 +59,6 @@ jobs:
             echo "=== Validate generated host ==="
             test -f _site/index.html
             test -f _site/slopkit/poops.html
-            test -f _site/payloads/pldmgr.elf
             test -f _site/payload-menu.json
             python - <<'PY'
           import json
@@ -75,6 +74,9 @@ jobs:
               raise SystemExit('removed payload unexpectedly returned')
           if 'ProsperoPlayer' not in names or 'Ghostcontrol' not in names:
               raise SystemExit('required payload missing from generated menu')
+          manager = menu[0]
+          if not manager['filename'].lower().startswith('pldmgr'):
+              raise SystemExit(f'unexpected Payload Manager filename: {manager["filename"]}')
           for item in menu:
               p = Path('_site/payloads') / item['filename']
               if not p.is_file() or p.read_bytes()[:4] != b'\x7fELF':
@@ -83,7 +85,7 @@ jobs:
           for item in menu:
               if item['filename'] not in page:
                   raise SystemExit(f'missing SlopKit menu entry: {item["filename"]}')
-          print(f'Validated {len(menu)} ELF payloads')
+          print(f'Validated {len(menu)} ELF payloads; Payload Manager asset: {manager["filename"]}')
           PY
 
             echo "=== Publish complete static copy to gh-pages ==="
