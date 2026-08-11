@@ -21,7 +21,7 @@ Built UI with 14 hosted ELFs (68687432 bytes)
 SlopKit exploit/runtime files were not patched
 Fresh untouched upstream copy published at /original/
 === Add offline cache around fresh original path ===
-Offline cache ready: 33 URLs, 4144454 bytes, fresh untouched SlopKit path, version 8df5cdd1ca21
+Offline cache ready: 33 URLs, 4144454 bytes, fresh untouched SlopKit path, version c1bd907c1c49
 === Validate generated host and upstream identity ===
 Byte-identical upstream tree: slopkit/ (11 files)
 Byte-identical upstream tree: original/slopkit/ (11 files)
@@ -32,5 +32,5 @@ Byte-identical upstream tree: original/ui/ (25 files)
 PASS: /original/ is a byte-for-byte upstream SlopKit copy; 14 hosted ELF files remain outside exploit logic
 === Publish complete static copy to gh-pages ===
 To https://github.com/thatboialex/ps5-payload-source.git
- + 1b6ffae...447769a gh-pages -> gh-pages (forced update)
+ + 447769a...768f990 gh-pages -> gh-pages (forced update)
 === SUCCESS ===
