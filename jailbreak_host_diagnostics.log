@@ -1,36 +1,12 @@
 === Clone upstream SlopKit ===
 Cloning into '_upstream'...
-SlopKit commit: 6b9309f52e7d1fddf9eb913993a80b36fb58a6f3
+SlopKit commit: add72ada70050d048576b1d76300bf117d132362
 === Copy full upstream host ===
 === Build custom outer UI and hosted payload files ===
-OK Payload Manager: pldmgr_v0.5.1.elf (2410768 bytes)
-OK CheatRunner: CheatRunner.elf (9502120 bytes)
-OK Pegasus DL: pegasus_dl.elf (20333680 bytes)
-OK Kylin Core: kylin-core.elf (6015672 bytes)
-OK Ghostpad: ghostpad.elf (274312 bytes)
-OK Kura Loader: kura-loader.elf (8245176 bytes)
-OK SVT Play Installer: svtplay-install.elf (148520 bytes)
-OK PS5 BAR Tool - Info: ps5-bar-tool_info.elf (111024 bytes)
-OK PS5 BAR Tool - Main Segments: ps5-bar-tool_dump_main_segments.elf (111024 bytes)
-OK PS5 BAR Tool - Full Dump: ps5-bar-tool_dump_all.elf (111080 bytes)
-OK PS5 BAR Tool - Save Data: ps5-bar-tool_savedata.elf (111080 bytes)
-OK Ghostcontrol: ghost-control-x10-ds4.elf (371536 bytes)
-OK RESTORE_PM: RESTORE_PM.elf (345408 bytes)
-OK ProsperoPlayer: ProsperoPlayer_MediaLauncher.elf (20596032 bytes)
-Built UI with 14 hosted ELFs (68687432 bytes)
-SlopKit exploit/runtime files were not patched
-Fresh untouched upstream copy published at /original/
-=== Add offline cache around fresh original path ===
-Offline cache ready: 33 URLs, 4144454 bytes, fresh untouched SlopKit path, version 4e73872f5f47
-=== Validate generated host and upstream identity ===
-Byte-identical upstream tree: slopkit/ (11 files)
-Byte-identical upstream tree: original/slopkit/ (11 files)
-Byte-identical upstream tree: offsets/ (14 files)
-Byte-identical upstream tree: original/offsets/ (14 files)
-Byte-identical upstream tree: ui/ (25 files)
-Byte-identical upstream tree: original/ui/ (25 files)
-PASS: /original/ is a byte-for-byte upstream SlopKit copy; 14 hosted ELF files remain outside exploit logic
-=== Publish complete static copy to gh-pages ===
-To https://github.com/thatboialex/ps5-payload-source.git
- + 6aef42f...604f1b8 gh-pages -> gh-pages (forced update)
-=== SUCCESS ===
+ERROR: Upstream SlopKit RUN URL changed unexpectedly
+Traceback (most recent call last):
+  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 186, in <module>
+    main()
+  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 109, in main
+    raise RuntimeError("Upstream SlopKit RUN URL changed unexpectedly")
+RuntimeError: Upstream SlopKit RUN URL changed unexpectedly
