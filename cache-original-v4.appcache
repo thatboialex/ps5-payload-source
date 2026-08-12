@@ -1,0 +1,44 @@
+CACHE MANIFEST
+# version: 4e73872f5f475bdc8daa74b0b89749774a33db19f071e96d384c9323fdd92040
+# Fresh untouched upstream SlopKit + Payload Manager only (4144454 bytes)
+
+CACHE:
+./
+index.html
+main.css
+payload-menu.json
+payloads/pldmgr_v0.5.1.elf
+original/index.html
+original/slopkit/cat.jpg
+original/slopkit/core.js
+original/slopkit/int64.js
+original/slopkit/main.js
+original/slopkit/mem.js
+original/slopkit/mmhmm-cats-ps5.gif
+original/slopkit/poops.html
+original/slopkit/poops.js
+original/slopkit/rop.js
+original/slopkit/rop_slave.js
+original/slopkit/syscalls.js
+original/offsets/10.00.js
+original/offsets/10.01.js
+original/offsets/10.20.js
+original/offsets/10.40.js
+original/offsets/10.60.js
+original/offsets/11.00.js
+original/offsets/11.20.js
+original/offsets/11.40.js
+original/offsets/11.60.js
+original/offsets/12.00.js
+original/offsets/9.00.js
+original/offsets/9.20.js
+original/offsets/9.40.js
+original/offsets/9.60.js
+original/slopkit/main.js?v=16
+original/slopkit/poops.html?go=1&auto=1&trigger=netcontrol&payload=1&v=17
+
+FALLBACK:
+original/slopkit/poops.html original/slopkit/poops.html
+
+NETWORK:
+*

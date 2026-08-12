@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html manifest="cache-original-v4.appcache" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PS5 SlopKit Jailbreak</title>
+  <link rel="stylesheet" href="main.css">
+<style>
+#offline-cache-status {
+  position: fixed; right: 18px; bottom: 16px; z-index: 99999;
+  max-width: 560px; padding: 10px 14px; border-radius: 10px;
+  font: 700 13px/1.35 Arial, sans-serif; color: #d8dee9;
+  background: rgba(21,22,26,.94); border: 1px solid #4d515a;
+  box-shadow: 0 8px 30px rgba(0,0,0,.32);
+}
+#offline-cache-status.ready { color: #c9f7d5; border-color: #55d17d; }
+#offline-cache-status.warn { color: #ffe4a8; border-color: #d8a84e; }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <h1>PS5 SlopKit Jailbreak</h1>
+    <p>Original SlopKit exploit + your Payload Manager catalog</p>
+  </header>
+
+  <main>
+    <section class="hero">
+      <a id="run-jb" class="btn primary" href="original/slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17">Jailbreak</a>
+      <a class="btn" href="original/index.html">Original SlopKit Page</a>
+      <p class="hint">The Jailbreak button opens a fresh byte-for-byte copy of upstream SlopKit. The payload cards below are hosted ELF files only and do not modify or hook the exploit.</p>
+      <div class="stats">
+        <span>14 hosted ELFs</span>
+        <span>Payload Manager v0.5.1</span>
+      </div>
+    </section>
+
+    <section class="payload-section">
+      <div class="section-heading">
+        <div>
+          <h2>Payloads</h2>
+          <p>Payload Manager is pinned first. These files mirror your live PLDMGR catalog while SlopKit itself remains untouched.</p>
+        </div>
+      </div>
+      <div class="payload-grid">
+<a class="payload-card featured" href="payloads/pldmgr_v0.5.1.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">Payload Manager</span>
+    <span class="payload-version">v0.5.1</span>
+  </div>
+  <div class="payload-category">System &amp; Jailbreak</div>
+  <p>PS5 Payload Manager dashboard for installing, organizing and launching payloads.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/CheatRunner.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">CheatRunner</span>
+    <span class="payload-version">v0.17</span>
+  </div>
+  <div class="payload-category">Cheats &amp; Trainers</div>
+  <p>Web-based PS5 cheat trainer for already-jailbroken PS5 consoles.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/pegasus_dl.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">Pegasus DL</span>
+    <span class="payload-version">v1.7.0</span>
+  </div>
+  <div class="payload-category">Utilities &amp; Tools</div>
+  <p>PS5 payload for direct package downloading and local file management through a web interface.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/kylin-core.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">Kylin Core</span>
+    <span class="payload-version">v1.3.1-community-lite</span>
+  </div>
+  <div class="payload-category">Cheats &amp; Trainers</div>
+  <p>PS5 homebrew cheat loader and real-time game modifier.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/ghostpad.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">Ghostpad</span>
+    <span class="payload-version">v1.0.0</span>
+  </div>
+  <div class="payload-category">Utilities &amp; Tools</div>
+  <p>PS5 virtual DualSense payload for remote controller input over LAN, used with the Ghostpad PC app.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/kura-loader.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">Kura Loader</span>
+    <span class="payload-version">v1.6.25</span>
+  </div>
+  <div class="payload-category">Utilities &amp; Tools</div>
+  <p>Self-contained PS5 companion payload for Kura with a web dashboard, installs, cheats, saves, storage tools and console management.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/svtplay-install.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">SVT Play Installer</span>
+    <span class="payload-version">v0.2</span>
+  </div>
+  <div class="payload-category">Media</div>
+  <p>Installs the unofficial SVT Play 10-foot UI to the PS5 Media tab; streams are generally geo-restricted to Swedish IP addresses.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/ps5-bar-tool_info.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">PS5 BAR Tool - Info</span>
+    <span class="payload-version">v0.3</span>
+  </div>
+  <div class="payload-category">Backup &amp; Recovery</div>
+  <p>Parses PS5 Backup and Restore archive information and logs results locally and remotely.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/ps5-bar-tool_dump_main_segments.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">PS5 BAR Tool - Main Segments</span>
+    <span class="payload-version">v0.3</span>
+  </div>
+  <div class="payload-category">Backup &amp; Recovery</div>
+  <p>Parses a PS5 Backup and Restore archive and dumps special/main embedded segments.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/ps5-bar-tool_dump_all.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">PS5 BAR Tool - Full Dump</span>
+    <span class="payload-version">v0.3</span>
+  </div>
+  <div class="payload-category">Backup &amp; Recovery</div>
+  <p>Dumps supported embedded files from a PS5 Backup and Restore archive to USB.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/ps5-bar-tool_savedata.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">PS5 BAR Tool - Save Data</span>
+    <span class="payload-version">v0.3</span>
+  </div>
+  <div class="payload-category">Backup &amp; Recovery</div>
+  <p>Parses PS5 Backup and Restore archives and dumps PS4/PS5 save-data files.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/ghost-control-x10-ds4.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">Ghostcontrol</span>
+    <span class="payload-version">2026-08-09T16:08:56Z</span>
+  </div>
+  <div class="payload-category">Controllers &amp; Input</div>
+  <p>Uses supported third-party USB controllers on PS5 by translating USB HID input into a virtual DualSense.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/RESTORE_PM.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">RESTORE_PM</span>
+    <span class="payload-version">v1.0</span>
+  </div>
+  <div class="payload-category">System &amp; Jailbreak</div>
+  <p>Restores the Payload Manager tile on the PS5 home screen if it is missing or no longer opens.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+<a class="payload-card" href="payloads/ProsperoPlayer_MediaLauncher.elf">
+  <div class="payload-card-top">
+    <span class="payload-name">ProsperoPlayer</span>
+    <span class="payload-version">v1.0</span>
+  </div>
+  <div class="payload-category">Media</div>
+  <p>PS5 homebrew media player for USB video, music and images with subtitles, resume playback and media controls.</p>
+  <span class="payload-action">ELF file</span>
+</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>SlopKit upstream: <a href="https://github.com/jordyidk/slopkit">jordyidk/slopkit</a> · UI inspired by <a href="https://github.com/idlesauce/umtx2">idlesauce/umtx2</a></p>
+    <p>SlopKit credits: Egy, Sonic, Yenyen, Gezine, Echostretch, Ufm42, TheFloW, John Törnblom, Flatz and PS5 R&amp;D Discord.</p>
+    <p class="build">Host build: 2026-08-12T03:12:54+00:00</p>
+  </footer>
+
+  <script>
+  (function () {
+    try {
+      var first = document.getElementById('run-jb');
+      if (first) first.focus();
+    } catch (e) {}
+  })();
+  </script>
+<div id="offline-cache-status" role="status">Offline cache: preparing...</div>
+<script>
+(function () {
+  var box = document.getElementById('offline-cache-status');
+  function setStatus(text, cls) {
+    if (!box) return;
+    box.textContent = text;
+    box.className = cls || '';
+  }
+  try {
+    var ac = window.applicationCache;
+    if (!ac) {
+      setStatus('Offline cache unavailable in this browser', 'warn');
+      return;
+    }
+    ac.addEventListener('checking', function () { setStatus('Offline cache: checking...', ''); });
+    ac.addEventListener('downloading', function () {
+      setStatus('Offline cache: downloading untouched SlopKit + Payload Manager...', '');
+    });
+    ac.addEventListener('progress', function (e) {
+      if (e && e.total) setStatus('Offline cache: ' + e.loaded + ' / ' + e.total + ' files', '');
+    });
+    ac.addEventListener('cached', function () {
+      setStatus('Offline jailbreak ready ✓ Untouched SlopKit + Payload Manager cached', 'ready');
+    });
+    ac.addEventListener('noupdate', function () { setStatus('Offline jailbreak ready ✓', 'ready'); });
+    ac.addEventListener('updateready', function () {
+      try { ac.swapCache(); } catch (e) {}
+      setStatus('Offline cache updated ✓ Reload once', 'ready');
+    });
+    ac.addEventListener('error', function () {
+      if (typeof navigator !== 'undefined' && navigator.onLine === false)
+        setStatus('Offline mode ✓ Using cached untouched SlopKit', 'ready');
+      else
+        setStatus('Offline cache incomplete — keep internet on and reload', 'warn');
+    });
+  } catch (e) {
+    setStatus('Offline cache status unavailable', 'warn');
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "status": "built",
+  "built_at_utc": "2026-08-12T03:12:54+00:00",
+  "slopkit_upstream": "jordyidk/slopkit",
+  "slopkit_commit": "6b9309f52e7d1fddf9eb913993a80b36fb58a6f3",
+  "slopkit_runtime_modified": false,
+  "fresh_original_path": "/original/",
+  "payload_count": 14,
+  "payload_manager_version": "v0.5.1",
+  "payload_bytes": 68687432,
+  "pages_branch": "gh-pages"
+}
