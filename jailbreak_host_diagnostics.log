@@ -1,6 +1,6 @@
 === Clone upstream SlopKit ===
 Cloning into '_upstream'...
-SlopKit commit: add72ada70050d048576b1d76300bf117d132362
+SlopKit commit: 6153152be0b6a69e7e7931ff1b68523b7fde1429
 === Copy full upstream host ===
 === Build custom outer UI and hosted payload files ===
 ERROR: Upstream SlopKit RUN URL changed unexpectedly
