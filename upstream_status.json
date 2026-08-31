@@ -56,11 +56,11 @@
   "SVT Play Installer": {
     "repo": "ps5-payload-dev/svtplay",
     "published": true,
-    "release_tag": "v0.2",
-    "release_url": "https://github.com/ps5-payload-dev/svtplay/releases/tag/v0.2",
+    "release_tag": "v0.3",
+    "release_url": "https://github.com/ps5-payload-dev/svtplay/releases/tag/v0.3",
     "prerelease": false,
     "asset": "svtplay-install.elf",
-    "version": "v0.2"
+    "version": "v0.3"
   },
   "PS5 BAR Tool - Info": {
     "repo": "c0w-ar/ps5-bar-tool",
