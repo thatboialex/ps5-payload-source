@@ -49,11 +49,11 @@
     {
       "name": "SVT Play Installer",
       "filename": "svtplay-install.elf",
-      "url": "https://github.com/ps5-payload-dev/svtplay/releases/download/v0.3/svtplay-install.elf",
+      "url": "https://github.com/ps5-payload-dev/svtplay/releases/download/v0.4/svtplay-install.elf",
       "description": "Installs the unofficial SVT Play 10-foot UI to the PS5 Media tab; streams are generally geo-restricted to Swedish IP addresses.",
-      "version": "v0.3",
+      "version": "v0.4",
       "category": "Media",
-      "checksum": "31f2caac7d53b8754bb37cb0364e615bfc38fc5f02c886d286a4f9e603b56832"
+      "checksum": "b6fdfe6d714298dc49a936ac731493ffc80dabd467da5e0ce595db7ea75f39a1"
     },
     {
       "name": "PS5 BAR Tool - Info",
