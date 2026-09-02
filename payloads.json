@@ -40,11 +40,11 @@
     {
       "name": "Kura Loader",
       "filename": "kura-loader.elf",
-      "url": "https://github.com/NookieAI/kura/releases/download/v1.6.48/kura-loader.elf",
+      "url": "https://github.com/NookieAI/kura/releases/download/v1.6.49/kura-loader.elf",
       "description": "Self-contained PS5 companion payload for Kura with a web dashboard, installs, cheats, saves, storage tools and console management.",
-      "version": "v1.6.48",
+      "version": "v1.6.49",
       "category": "Utilities & Tools",
-      "checksum": "a01c8be395a1f71fe9badf864328a2a2f6378d8dc08b948be020b2dd49edb7a9"
+      "checksum": "6b1a97adb6bd4363db68cb50f558fc93e3f8fe89e00382f4bab6be4f9de38b97"
     },
     {
       "name": "SVT Play Installer",
