@@ -15,9 +15,10 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OVERLAY = ROOT / "jailbreak-host"
 CATALOG = ROOT / "payloads-v2.json"
+SOURCES = ROOT / "sources.json"
 SITE = pathlib.Path(os.environ.get("SITE_DIR", ROOT / "_site"))
 UPSTREAM = pathlib.Path(os.environ.get("UPSTREAM_DIR", ROOT / "_upstream"))
-USER_AGENT = "thatboialex-ps5-jailbreak-host/2.1"
+USER_AGENT = "thatboialex-ps5-jailbreak-host/2.2"
 PLDMGR_API = "https://api.github.com/repos/itsPLK/ps5-payload-manager/releases/latest"
 UPSTREAM_RUN_QUERY = "slopkit/poops.html?go=1&auto=1&trigger=netcontrol&payload=1&v=17"
 CUSTOM_RUN_QUERY = "original/slopkit/poops.html?go=1&auto=1&trigger=netcontrol&payload=1&v=17"
@@ -87,6 +88,23 @@ def make_card(item: dict, featured: bool = False) -> str:
     )
 
 
+def make_native_app_card(source: dict) -> str:
+    repo = str(source["repo"])
+    release_url = f"https://github.com/{repo}/releases"
+    return (
+        f'<a class="payload-card" href="{html.escape(release_url, quote=True)}">\n'
+        '  <div class="payload-card-top">\n'
+        f'    <span class="payload-name">{html.escape(str(source["name"]))}</span>\n'
+        '    <span class="payload-version">APP</span>\n'
+        '  </div>\n'
+        f'  <div class="payload-category">{html.escape(str(source.get("category", "Native Apps")))}</div>\n'
+        f'  <p>{html.escape(str(source.get("description", "")))}</p>\n'
+        f'  <span class="payload-meta">{html.escape(repo)}</span>\n'
+        '  <span class="payload-action">Open releases</span>\n'
+        '</a>'
+    )
+
+
 def main():
     if not SITE.exists():
         raise RuntimeError(f"Site directory does not exist: {SITE}")
@@ -112,6 +130,12 @@ def main():
     items = list(catalog.get("payloads", []))
     manager = latest_pldmgr()
     all_items = [manager] + items
+
+    source_config = json.loads(SOURCES.read_text(encoding="utf-8"))
+    native_apps = [
+        source for source in source_config.get("sources", [])
+        if isinstance(source, dict) and source.get("show_on_page")
+    ]
 
     payload_dir = SITE / "payloads"
     if payload_dir.exists():
@@ -139,11 +163,14 @@ def main():
 
     index_template = (OVERLAY / "index.html").read_text(encoding="utf-8")
     cards = "\n".join(make_card(item, i == 0) for i, item in enumerate(generated))
+    native_cards = "\n".join(make_native_app_card(source) for source in native_apps)
     build_time = dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
     replacements = {
         "{{PAYLOAD_COUNT}}": str(len(generated)),
         "{{PAYLOAD_CARDS}}": cards,
         "{{PLDMGR_VERSION}}": html.escape(manager["version"]),
+        "{{NATIVE_APP_COUNT}}": str(len(native_apps)),
+        "{{NATIVE_APP_CARDS}}": native_cards,
         "{{BUILD_TIME}}": html.escape(build_time),
     }
     for key, value in replacements.items():
@@ -165,6 +192,7 @@ def main():
         "slopkit_runtime_modified": False,
         "fresh_original_path": "/original/",
         "payload_count": len(generated),
+        "native_app_count": len(native_apps),
         "payload_manager_version": manager["version"],
         "payload_bytes": total,
         "pages_branch": "gh-pages",
@@ -177,6 +205,7 @@ def main():
     )
 
     print(f"Built UI with {len(generated)} hosted ELFs ({total} bytes)")
+    print(f"Added {len(native_apps)} tracked native-app project card(s)")
     print("SlopKit exploit/runtime files were not patched")
     print("Fresh untouched upstream copy published at /original/")
 
