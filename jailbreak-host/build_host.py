@@ -18,10 +18,8 @@ CATALOG = ROOT / "payloads-v2.json"
 SOURCES = ROOT / "sources.json"
 SITE = pathlib.Path(os.environ.get("SITE_DIR", ROOT / "_site"))
 UPSTREAM = pathlib.Path(os.environ.get("UPSTREAM_DIR", ROOT / "_upstream"))
-USER_AGENT = "thatboialex-ps5-jailbreak-host/2.2"
+USER_AGENT = "thatboialex-ps5-jailbreak-host/2.3"
 PLDMGR_API = "https://api.github.com/repos/itsPLK/ps5-payload-manager/releases/latest"
-UPSTREAM_RUN_QUERY = "slopkit/poops.html?go=1&auto=1&trigger=netcontrol&payload=1&v=17"
-CUSTOM_RUN_QUERY = "original/slopkit/poops.html?go=1&auto=1&trigger=netcontrol&payload=1&v=17"
 
 
 def api_json(url: str):
@@ -111,20 +109,15 @@ def main():
     if not (UPSTREAM / "index.html").is_file():
         raise RuntimeError(f"Upstream SlopKit checkout not found: {UPSTREAM}")
 
-    # Fresh path that the PS5's previous AppCache groups have never seen.
-    # Copy the complete upstream host without modification, then remove only Git metadata.
+    # Publish a fresh, untouched copy of upstream SlopKit. The outer UI never
+    # edits the exploit/runtime tree and enters through upstream's own index.
     original_dir = SITE / "original"
     if original_dir.exists():
         shutil.rmtree(original_dir)
     shutil.copytree(UPSTREAM, original_dir)
     shutil.rmtree(original_dir / ".git", ignore_errors=True)
 
-    # Also retain a byte-for-byte standalone copy of upstream index.html for easy comparison.
     shutil.copy2(UPSTREAM / "index.html", SITE / "original-slopkit.html")
-
-    upstream_index = (UPSTREAM / "index.html").read_text(encoding="utf-8")
-    if UPSTREAM_RUN_QUERY.replace("&", "&amp;") not in upstream_index:
-        raise RuntimeError("Upstream SlopKit RUN URL changed unexpectedly")
 
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     items = list(catalog.get("payloads", []))
@@ -176,8 +169,8 @@ def main():
     for key, value in replacements.items():
         index_template = index_template.replace(key, value)
 
-    if CUSTOM_RUN_QUERY.replace("&", "&amp;") not in index_template:
-        raise RuntimeError("Custom landing page is not using fresh untouched SlopKit path")
+    if 'id="run-jb"' not in index_template or 'href="original/index.html"' not in index_template:
+        raise RuntimeError("Custom landing page must enter SlopKit through untouched original/index.html")
 
     (SITE / "index.html").write_text(index_template, encoding="utf-8")
     shutil.copy2(OVERLAY / "main.css", SITE / "main.css")
