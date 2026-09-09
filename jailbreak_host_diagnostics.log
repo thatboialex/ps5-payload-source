@@ -23,7 +23,7 @@ Added 3 tracked native-app project card(s)
 SlopKit exploit/runtime files were not patched
 Fresh untouched upstream copy published at /original/
 === Add offline cache around fresh original path ===
-Offline cache ready: 36 URLs, 3106056 bytes, fresh untouched SlopKit path, version b1fe77c4a8af
+Offline cache ready: 36 URLs, 3106001 bytes, fresh untouched SlopKit path, version 18a71b9f926a
 === Validate generated host and upstream identity ===
 Byte-identical upstream tree: slopkit/ (9 files)
 Byte-identical upstream tree: original/slopkit/ (9 files)
@@ -31,4 +31,8 @@ Byte-identical upstream tree: offsets/ (15 files)
 Byte-identical upstream tree: original/offsets/ (15 files)
 Byte-identical upstream tree: ui/ (0 files)
 Byte-identical upstream tree: original/ui/ (0 files)
-original SlopKit payload limit changed
+PASS: /original/ is a byte-for-byte upstream SlopKit copy; 15 hosted ELF files and 3 native-app cards remain outside exploit logic
+=== Publish complete static copy to gh-pages ===
+To https://github.com/thatboialex/ps5-payload-source.git
+ + 604f1b8...3e3c46f gh-pages -> gh-pages (forced update)
+=== SUCCESS ===
