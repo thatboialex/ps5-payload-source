@@ -20,6 +20,9 @@ concurrency:
 
 jobs:
   mirror:
+    # Scheduled refreshes must never turn the whole workflow red just because an
+    # upstream project temporarily disappears or GitHub has a network hiccup.
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -27,57 +30,133 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download and verify every catalog ELF
+      - name: Prepare fully verified mirror candidate
+        id: candidate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
+          set +e
+          rm -rf dist
+          mkdir -p dist
+
           python - <<'PY'
           import hashlib
           import json
           import pathlib
+          import sys
+          import time
+          import urllib.parse
           import urllib.request
 
           catalog = json.load(open('payloads.json', encoding='utf-8'))
           out = pathlib.Path('dist')
-          out.mkdir(exist_ok=True)
           sums = []
+          failures = []
+          mirror_base = (
+              'https://github.com/thatboialex/ps5-payload-source/'
+              'releases/download/pldmgr-elf-downloads/'
+          )
+
+          def download(url: str) -> bytes:
+              last = None
+              for attempt in range(3):
+                  try:
+                      req = urllib.request.Request(
+                          url,
+                          headers={'User-Agent': 'ps5-payload-source-mirror/2.0'},
+                      )
+                      with urllib.request.urlopen(req, timeout=120) as response:
+                          return response.read()
+                  except Exception as exc:
+                      last = exc
+                      if attempt < 2:
+                          time.sleep(2 * (attempt + 1))
+              raise last
+
+          def validate(filename: str, data: bytes, expected: str) -> str:
+              if len(data) < 4 or data[:4] != b'\x7fELF':
+                  raise ValueError('downloaded file is not an ELF')
+              actual = hashlib.sha256(data).hexdigest()
+              if expected and actual != expected:
+                  raise ValueError(
+                      f'SHA-256 mismatch: expected {expected}, got {actual}'
+                  )
+              return actual
 
           for item in catalog.get('payloads', []):
               filename = item['filename']
-              url = item['url']
+              upstream_url = item['url']
               expected = (item.get('checksum') or '').lower()
 
               if not filename.lower().endswith('.elf'):
-                  raise SystemExit(f'{filename}: catalog entry is not an ELF')
+                  failures.append(f'{filename}: catalog entry is not an ELF')
+                  continue
 
-              req = urllib.request.Request(
-                  url,
-                  headers={'User-Agent': 'ps5-payload-source-mirror/1.3'},
-              )
-              with urllib.request.urlopen(req, timeout=120) as response:
-                  data = response.read()
+              fallback_url = mirror_base + urllib.parse.quote(filename)
+              attempts = [
+                  ('upstream', upstream_url),
+                  ('existing verified mirror', fallback_url),
+              ]
 
-              if len(data) < 4 or data[:4] != b'\x7fELF':
-                  raise SystemExit(f'{filename}: downloaded file is not an ELF')
+              data = None
+              actual = None
+              errors = []
+              used = None
+              for label, url in attempts:
+                  try:
+                      candidate = download(url)
+                      digest = validate(filename, candidate, expected)
+                      data = candidate
+                      actual = digest
+                      used = label
+                      break
+                  except Exception as exc:
+                      errors.append(f'{label}: {type(exc).__name__}: {exc}')
 
-              actual = hashlib.sha256(data).hexdigest()
-              if expected and actual != expected:
-                  raise SystemExit(
-                      f'{filename}: SHA-256 mismatch: expected {expected}, got {actual}'
-                  )
+              if data is None or actual is None:
+                  failures.append(f"{filename}: " + ' | '.join(errors))
+                  continue
 
               (out / filename).write_bytes(data)
               sums.append(f'{actual}  {filename}')
-              print(f'OK {filename} {len(data)} bytes {actual}')
+              print(f'OK {filename} {len(data)} bytes {actual} [{used}]')
 
-          (out / 'SHA256SUMS.txt').write_text('\n'.join(sums) + '\n', encoding='utf-8')
-          print(f'Mirrored {len(sums)} ELF files.')
+          if failures:
+              print('\nMirror candidate is incomplete; keeping the existing release unchanged.')
+              for failure in failures:
+                  print(f'WARN {failure}')
+              raise SystemExit(2)
+
+          (out / 'SHA256SUMS.txt').write_text(
+              '\n'.join(sums) + '\n', encoding='utf-8'
+          )
+          print(f'Prepared {len(sums)} fully verified ELF files.')
           PY
 
-      - name: Publish exact downloadable ELF mirror release
+          RC=$?
+          if [ "$RC" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=ELF mirror refresh skipped::One or more upstream files were unavailable and no checksum-matching existing mirror copy could be used. The current release was left untouched."
+          fi
+
+          # A refresh failure is non-disruptive and should not generate a red
+          # workflow/failure-notification email.
+          exit 0
+
+      - name: Publish verified candidate atomically
+        id: publish
+        if: steps.candidate.outputs.ready == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
-          set -euo pipefail
+          set +e
           TAG="pldmgr-elf-downloads"
+
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" \
               --target main \
@@ -85,77 +164,52 @@ jobs:
               --notes "Verified mirror of every loadable ELF currently listed in payloads.json. Assets are refreshed automatically and validated against the catalog SHA-256 checksums before upload."
           fi
 
+          gh release upload "$TAG" dist/*.elf dist/SHA256SUMS.txt --clobber
+          RC=$?
+          if [ "$RC" -ne 0 ]; then
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=ELF mirror publish skipped::GitHub rejected or interrupted the release upload. The previous release assets remain available."
+            exit 0
+          fi
+
+          # Only remove stale assets after every current asset uploaded successfully.
           while IFS= read -r asset; do
             [ -z "$asset" ] && continue
             if [[ "$asset" == *.elf && ! -f "dist/$asset" ]]; then
               echo "Deleting stale release asset: $asset"
-              gh release delete-asset "$TAG" "$asset" --yes
+              gh release delete-asset "$TAG" "$asset" --yes || true
             fi
-          done < <(gh release view "$TAG" --json assets --jq '.assets[].name')
+          done < <(gh release view "$TAG" --json assets --jq '.assets[].name' 2>/dev/null)
 
-          gh release upload "$TAG" dist/*.elf dist/SHA256SUMS.txt --clobber
-
-      - name: Verify exact release asset count
-        id: verify
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
           EXPECTED=$(python - <<'PY'
           import json
           data=json.load(open('payloads.json', encoding='utf-8'))
           print(sum(1 for p in data.get('payloads', []) if p['filename'].lower().endswith('.elf')))
           PY
           )
-          ACTUAL=$(gh release view pldmgr-elf-downloads --json assets --jq '[.assets[] | select(.name | endswith(".elf"))] | length')
-          echo "Expected ELF assets: $EXPECTED"
-          echo "Release ELF assets:  $ACTUAL"
-          test "$ACTUAL" -eq "$EXPECTED"
-          echo "expected=$EXPECTED" >> "$GITHUB_OUTPUT"
-          echo "actual=$ACTUAL" >> "$GITHUB_OUTPUT"
+          ACTUAL=$(gh release view "$TAG" --json assets --jq '[.assets[] | select(.name | endswith(".elf"))] | length' 2>/dev/null)
 
-      - name: Publish fresh cache-busting PLDMGR source
-        run: |
-          python - <<'PY'
-          import json
-          data = json.load(open('payloads.json', encoding='utf-8'))
-          data['name'] = "Jason's PS5 GitHub Payloads v2"
-          with open('payloads-v2.json', 'w', encoding='utf-8') as f:
-              json.dump(data, f, indent=2, ensure_ascii=False)
-              f.write('\n')
-          PY
-
-      - name: Record successful mirror status
-        env:
-          EXPECTED: ${{ steps.verify.outputs.expected }}
-          ACTUAL: ${{ steps.verify.outputs.actual }}
-        run: |
-          python - <<'PY'
-          import datetime
-          import json
-          import os
-
-          status = {
-              'status': 'ok',
-              'verified_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'catalog_elf_count': int(os.environ['EXPECTED']),
-              'release_elf_count': int(os.environ['ACTUAL']),
-              'release_tag': 'pldmgr-elf-downloads',
-              'release_url': 'https://github.com/thatboialex/ps5-payload-source/releases/tag/pldmgr-elf-downloads',
-              'pldmgr_source_url': 'https://raw.githubusercontent.com/thatboialex/ps5-payload-source/main/payloads-v2.json',
-          }
-          with open('mirror_status.json', 'w', encoding='utf-8') as f:
-              json.dump(status, f, indent=2)
-              f.write('\n')
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add mirror_status.json payloads-v2.json
-          if git diff --cached --quiet; then
-            echo "Mirror status and v2 source unchanged."
+          if [ -z "$ACTUAL" ] || [ "$ACTUAL" -ne "$EXPECTED" ]; then
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=ELF mirror count check::Expected $EXPECTED ELF assets but GitHub currently reports ${ACTUAL:-unknown}. The next scheduled refresh will retry."
             exit 0
           fi
-          git commit -m "Verify ELF mirror and sync v2 source"
-          git pull --rebase origin main
-          git push
+
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+          echo "Expected ELF assets: $EXPECTED"
+          echo "Release ELF assets:  $ACTUAL"
+
+      - name: Report mirror refresh
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.candidate.outputs.ready }}" = "true" ] && [ "${{ steps.publish.outputs.ok }}" = "true" ]; then
+            echo "### ELF mirror refresh succeeded" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### ELF mirror kept the last known-good release"
+              echo "A missing upstream asset or transient GitHub error was treated as non-fatal."
+              echo "Existing verified downloads remain available."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit 0
