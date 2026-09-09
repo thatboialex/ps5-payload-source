@@ -117,6 +117,15 @@
       "version": "v1.0",
       "category": "Media",
       "checksum": "40b9955273982cd563e1b16bd428ea6a9c399e7d4bc55b220fe223948572cdad"
+    },
+    {
+      "name": "OnionHEN",
+      "filename": "OnionHEN.elf",
+      "url": "https://github.com/aydencharles/onionHEN/releases/download/v0.0.12/OnionHEN.elf",
+      "description": "PS5 homebrew enabler and Toolbox built on etaHEN, with cheats, overlays, payload management and background services.",
+      "version": "v0.0.12",
+      "category": "System & Jailbreak",
+      "checksum": "a5c8dafe2af2681e8014421400c4ade4183a8d8be6dad6080dbd0930fa159e00"
     }
   ]
 }

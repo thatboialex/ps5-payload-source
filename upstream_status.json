@@ -126,6 +126,57 @@
     "asset": "ProsperoPlayer_MediaLauncher.elf",
     "version": "v1.0"
   },
+  "OnionHEN": {
+    "repo": "aydencharles/onionHEN",
+    "published": true,
+    "release_tag": "v0.0.12",
+    "release_url": "https://github.com/aydencharles/onionHEN/releases/tag/v0.0.12",
+    "prerelease": false,
+    "asset": "OnionHEN.elf",
+    "version": "v0.0.12"
+  },
+  "ProsperoRadio": {
+    "repo": "blackbearreloaded/ProsperoRadio",
+    "published": false,
+    "release_tag": "01.000.005",
+    "release_url": "https://github.com/blackbearreloaded/ProsperoRadio/releases/tag/01.000.005",
+    "prerelease": false,
+    "tracked_only": true,
+    "assets": [
+      "PPSA99001.ffpfsc",
+      "PPSA99001.zip",
+      "SHA256SUMS"
+    ],
+    "reason": "ProsperoRadio is a complete PS5 native application distributed as FFPFSC or a full title-folder ZIP, not a standalone PLDMGR payload ELF."
+  },
+  "ProsperoTV": {
+    "repo": "blackbearreloaded/ProsperoTV",
+    "published": false,
+    "release_tag": "01.000.004",
+    "release_url": "https://github.com/blackbearreloaded/ProsperoTV/releases/tag/01.000.004",
+    "prerelease": true,
+    "tracked_only": true,
+    "assets": [
+      "PPSA99003.ffpfsc",
+      "PPSA99003.zip",
+      "SHA256SUMS"
+    ],
+    "reason": "ProsperoTV is a complete PS5 native application distributed as FFPFSC or a full title-folder ZIP, not a standalone PLDMGR payload ELF."
+  },
+  "PS5 Native App Boilerplate": {
+    "repo": "blackbearreloaded/ps5-native-app-boilerplate",
+    "published": false,
+    "release_tag": "01.000.000",
+    "release_url": "https://github.com/blackbearreloaded/ps5-native-app-boilerplate/releases/tag/01.000.000",
+    "prerelease": false,
+    "tracked_only": true,
+    "assets": [
+      "PPSA99999.ffpfsc",
+      "PPSA99999.zip",
+      "SHA256SUMS"
+    ],
+    "reason": "This repository is a native application development template and its releases are complete title packages rather than PLDMGR payload ELFs."
+  },
   "RetroArch PS5": {
     "repo": "tsuramatsu1/retroarch",
     "published": false,
