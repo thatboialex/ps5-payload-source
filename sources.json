@@ -137,6 +137,52 @@
       "release_tag": "v1.0"
     },
     {
+      "name": "OnionHEN",
+      "repo": "aydencharles/onionHEN",
+      "exact_assets": ["OnionHEN.elf"],
+      "allowed_extensions": [".elf"],
+      "description": "PS5 homebrew enabler and Toolbox built on etaHEN, with cheats, overlays, payload management and background services.",
+      "category": "System & Jailbreak",
+      "publish_if_compatible": true
+    },
+    {
+      "name": "ProsperoRadio",
+      "repo": "blackbearreloaded/ProsperoRadio",
+      "exact_assets": ["PPSA99001.ffpfsc", "PPSA99001.zip"],
+      "allowed_extensions": [".ffpfsc", ".zip"],
+      "description": "Native PS5 Internet-radio homebrew app with Radio Browser catalogue search, native audio playback and offline catalogue caching.",
+      "category": "Native Apps & Media",
+      "publish_if_compatible": false,
+      "track_only": true,
+      "show_on_page": true,
+      "track_only_reason": "ProsperoRadio is a complete PS5 native application distributed as FFPFSC or a full title-folder ZIP, not a standalone PLDMGR payload ELF."
+    },
+    {
+      "name": "ProsperoTV",
+      "repo": "blackbearreloaded/ProsperoTV",
+      "exact_assets": ["PPSA99003.ffpfsc", "PPSA99003.zip"],
+      "allowed_extensions": [".ffpfsc", ".zip"],
+      "description": "Native PS5 IPTV client supporting iptv-org, custom M3U playlists and Xtream Codes with controller-first navigation and native video decoding.",
+      "category": "Native Apps & Media",
+      "publish_if_compatible": false,
+      "track_only": true,
+      "show_on_page": true,
+      "release_mode": "latest_any",
+      "track_only_reason": "ProsperoTV is a complete PS5 native application distributed as FFPFSC or a full title-folder ZIP, not a standalone PLDMGR payload ELF."
+    },
+    {
+      "name": "PS5 Native App Boilerplate",
+      "repo": "blackbearreloaded/ps5-native-app-boilerplate",
+      "exact_assets": ["PPSA99999.ffpfsc", "PPSA99999.zip"],
+      "allowed_extensions": [".ffpfsc", ".zip"],
+      "description": "C++20 PS5 native-app template with reproducible runtime, FSELF tooling, packaging and deployment support.",
+      "category": "Development",
+      "publish_if_compatible": false,
+      "track_only": true,
+      "show_on_page": true,
+      "track_only_reason": "This repository is a native application development template and its releases are complete title packages rather than PLDMGR payload ELFs."
+    },
+    {
       "name": "RetroArch PS5",
       "repo": "tsuramatsu1/retroarch",
       "exact_assets": [],
