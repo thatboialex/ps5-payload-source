@@ -25,13 +25,15 @@ concurrency:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.deploy_gate.outputs.ready }}
     steps:
       - name: Check out host repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Build, verify and publish gh-pages
+      - name: Build and verify candidate host
         id: host
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +41,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          rm -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
+          rm -f jailbreak_host_diagnostics.log
 
           (
             set -euo pipefail
@@ -170,104 +172,99 @@ jobs:
 
           RC=$?
           cat jailbreak_host_diagnostics.log
-          echo "$RC" > jailbreak_host_result.txt
-          echo "result=$RC" >> "$GITHUB_OUTPUT"
+
+          if [ "$RC" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "### PS5 host refresh succeeded"
+              echo "The candidate passed validation and the gh-pages mirror was refreshed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=PS5 host refresh skipped::Candidate build or validation failed. The existing live Pages site was left untouched."
+            {
+              echo "### PS5 host refresh skipped"
+              echo "A candidate refresh failed validation or hit a transient upstream/network problem."
+              echo "The last known-good live Pages deployment remains in place."
+              echo "No repository status files were modified."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          # A failed refresh is non-disruptive: keep the last good site and avoid
+          # marking the workflow red (which also avoids failure-notification email).
           exit 0
 
+      - name: Upload failure diagnostics
+        if: steps.host.outputs.ready != 'true'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: jailbreak-host-diagnostics-${{ github.run_id }}
+          path: jailbreak_host_diagnostics.log
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Configure GitHub Pages
-        if: steps.host.outputs.result == '0'
+        id: configure_pages
+        if: steps.host.outputs.ready == 'true'
+        continue-on-error: true
         uses: actions/configure-pages@v5
 
       - name: Upload GitHub Pages artifact
-        if: steps.host.outputs.result == '0'
+        id: upload_pages
+        if: steps.host.outputs.ready == 'true'
+        continue-on-error: true
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 
-      - name: Commit build status and diagnostics
+      - name: Decide whether Pages deployment is ready
+        id: deploy_gate
         if: always()
         shell: bash
         run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f jailbreak_host_diagnostics.log jailbreak_host_result.txt
-          [ -f jailbreak_host_status.json ] && git add jailbreak_host_status.json
-          if git diff --cached --quiet; then
-            echo "No diagnostic/status changes."
+          HOST="${{ steps.host.outputs.ready }}"
+          CONFIGURE="${{ steps.configure_pages.outcome }}"
+          UPLOAD="${{ steps.upload_pages.outcome }}"
+
+          if [ "$HOST" = "true" ] && [ "$CONFIGURE" = "success" ] && [ "$UPLOAD" = "success" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git commit -m "Record jailbreak host build result"
-          git pull --rebase origin main
-          git push origin main
 
-      - name: Fail job if host publication failed
-        if: always()
-        shell: bash
-        run: |
-          test "${{ steps.host.outputs.result }}" = "0"
+          echo "ready=false" >> "$GITHUB_OUTPUT"
+          if [ "$HOST" = "true" ]; then
+            echo "::warning title=Pages deployment skipped::The host validated, but GitHub Pages artifact preparation failed. The existing live site remains unchanged."
+          fi
+          exit 0
 
   deploy-pages:
     needs: build-and-publish
+    if: needs.build-and-publish.outputs.ready == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
-      contents: write
       pages: write
       id-token: write
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
 
-      - name: Check out repository for status record
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Record live Pages URL
-        env:
-          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+      - name: Report Pages deployment result
+        if: always()
         shell: bash
         run: |
-          set -euo pipefail
-          python - <<'PY'
-          import datetime
-          import json
-          import os
-          from pathlib import Path
-
-          build = {}
-          p = Path('jailbreak_host_status.json')
-          if p.exists():
-              build = json.loads(p.read_text(encoding='utf-8'))
-          status = {
-              'status': 'live',
-              'deployed_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'page_url': os.environ['PAGE_URL'],
-              'payload_count': build.get('payload_count'),
-              'native_app_count': build.get('native_app_count'),
-              'payload_manager_version': build.get('payload_manager_version'),
-              'slopkit_commit': build.get('slopkit_commit'),
-              'slopkit_runtime_modified': False,
-              'fresh_original_path': '/original/',
-              'offline_cache': 'fresh-original-slopkit-plus-payload-manager',
-              'pages_branch': 'gh-pages',
-          }
-          Path('jailbreak_pages_status.json').write_text(
-              json.dumps(status, indent=2) + '\n', encoding='utf-8'
-          )
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jailbreak_pages_status.json
-          if git diff --cached --quiet; then
-            echo "Pages status unchanged."
-            exit 0
+          if [ "${{ steps.deployment.outcome }}" = "success" ]; then
+            echo "### GitHub Pages deployment succeeded" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning title=GitHub Pages deployment failed::The newly built candidate was not promoted. The previous live Pages deployment remains available."
+            {
+              echo "### GitHub Pages deployment was not promoted"
+              echo "GitHub Pages returned an error, so the previous live deployment was preserved."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
-          git commit -m "Record live jailbreak Pages URL"
-          git pull --rebase origin main
-          git push origin main
+          exit 0
