@@ -5,8 +5,8 @@ SlopKit commit: 6153152be0b6a69e7e7931ff1b68523b7fde1429
 === Build custom outer UI and hosted payload files ===
 ERROR: Upstream SlopKit RUN URL changed unexpectedly
 Traceback (most recent call last):
-  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 186, in <module>
+  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 215, in <module>
     main()
-  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 109, in main
+  File "/home/runner/work/ps5-payload-source/ps5-payload-source/jailbreak-host/build_host.py", line 127, in main
     raise RuntimeError("Upstream SlopKit RUN URL changed unexpectedly")
 RuntimeError: Upstream SlopKit RUN URL changed unexpectedly
