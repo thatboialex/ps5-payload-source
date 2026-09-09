@@ -10,6 +10,7 @@ on:
     paths:
       - "jailbreak-host/**"
       - "payloads-v2.json"
+      - "sources.json"
       - ".github/workflows/deploy-jailbreak-host.yml"
 
 permissions:
@@ -95,7 +96,6 @@ jobs:
                       raise SystemExit(f'UPSTREAM MISMATCH: {label}/{sub}')
               print(f'Byte-identical upstream tree: {label} ({len(a_files)} files)')
 
-          # Root copy stays clean, and the fresh /original/ copy must also be exact.
           for rel in ('slopkit', 'offsets', 'ui'):
               assert_tree_identical(upstream / rel, site / rel, rel + '/')
               assert_tree_identical(upstream / rel, original / rel, 'original/' + rel + '/')
@@ -115,8 +115,9 @@ jobs:
               raise SystemExit('Payload Manager is not pinned first')
           if {'fetchpkg', 'pkg_install'}.intersection(names):
               raise SystemExit('removed payload unexpectedly returned')
-          if 'ProsperoPlayer' not in names or 'Ghostcontrol' not in names:
-              raise SystemExit('required payload missing from hosted catalog')
+          for required in ('ProsperoPlayer', 'Ghostcontrol', 'OnionHEN'):
+              if required not in names:
+                  raise SystemExit(f'required payload missing from hosted catalog: {required}')
 
           manager = menu[0]
           for item in menu:
@@ -125,28 +126,18 @@ jobs:
                   raise SystemExit(f'bad hosted ELF: {p}')
 
           index = (site / 'index.html').read_text(encoding='utf-8')
-          fresh_page = (original / 'slopkit' / 'poops.html').read_text(encoding='utf-8')
-          upstream_page = (upstream / 'slopkit' / 'poops.html').read_text(encoding='utf-8')
           manifest = (site / 'cache-original-v4.appcache').read_text(encoding='utf-8')
 
-          fresh_run = 'original/slopkit/poops.html?go=1&amp;auto=1&amp;trigger=netcontrol&amp;payload=1&amp;v=17'
-          if fresh_run not in index:
-              raise SystemExit('custom UI does not use fresh original SlopKit path')
-          if fresh_page != upstream_page:
-              raise SystemExit('fresh original poops.html differs from upstream')
-          if 'manifest=' in fresh_page.split('>', 1)[0]:
-              raise SystemExit('fresh SlopKit page was mutated with AppCache')
-          if 'const PAYLOAD_MAX_SIZE = 0x200000;' not in fresh_page:
-              raise SystemExit('original SlopKit payload limit changed')
-          if 'Q.get("autoload")' in fresh_page:
-              raise SystemExit('custom autoload logic leaked into original SlopKit')
+          if 'id="run-jb"' not in index or 'href="original/index.html"' not in index:
+              raise SystemExit('custom UI must enter untouched SlopKit through original/index.html')
+          for app in ('ProsperoRadio', 'ProsperoTV', 'PS5 Native App Boilerplate'):
+              if app not in index:
+                  raise SystemExit(f'native app card missing from page: {app}')
 
           if 'manifest="cache-original-v4.appcache"' not in index:
               raise SystemExit('custom root page is not attached to fresh cache')
           if not manifest.startswith('CACHE MANIFEST\n'):
               raise SystemExit('invalid AppCache header')
-          if 'original/slopkit/poops.html original/slopkit/poops.html' not in manifest:
-              raise SystemExit('fresh original SlopKit fallback is missing')
 
           cached_payload_lines = [
               line for line in manifest.splitlines()
@@ -158,7 +149,7 @@ jobs:
 
           print(
               f'PASS: /original/ is a byte-for-byte upstream SlopKit copy; '
-              f'{len(menu)} hosted ELF files remain outside exploit logic'
+              f'{len(menu)} hosted ELF files and 3 native-app cards remain outside exploit logic'
           )
           PY
 
@@ -257,6 +248,7 @@ jobs:
               'deployed_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
               'page_url': os.environ['PAGE_URL'],
               'payload_count': build.get('payload_count'),
+              'native_app_count': build.get('native_app_count'),
               'payload_manager_version': build.get('payload_manager_version'),
               'slopkit_commit': build.get('slopkit_commit'),
               'slopkit_runtime_modified': False,
