@@ -11,11 +11,11 @@
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
     "published": true,
-    "release_tag": "v1.7.0",
-    "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/v1.7.0",
+    "release_tag": "v1.8.0",
+    "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/v1.8.0",
     "prerelease": false,
     "asset": "pegasus_dl.elf",
-    "version": "v1.7.0"
+    "version": "v1.8.0"
   },
   "Kylin Core": {
     "repo": "aydencharles/kylin-core-release",
@@ -38,11 +38,8 @@
   "Ghostpad": {
     "repo": "StonedModder/Ghostpad",
     "published": true,
-    "release_tag": "v1.0.0",
-    "release_url": "https://github.com/StonedModder/Ghostpad/releases/tag/v1.0.0",
-    "prerelease": false,
-    "asset": "ghostpad.elf",
-    "version": "v1.0.0"
+    "reason": "GitHub API HTTP 404 while checking selected release.",
+    "retained_previous_entry": true
   },
   "Kura Loader": {
     "repo": "NookieAI/kura",
