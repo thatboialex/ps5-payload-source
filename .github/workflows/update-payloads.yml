@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - "sources.json"
+      - "self_built_sources.json"
       - "scripts/**"
       - "tests/**"
       - ".github/workflows/update-payloads.yml"
@@ -18,37 +19,112 @@ permissions:
 
 concurrency:
   group: update-payload-catalog
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   update:
+    # Keep scheduled/transient failures from turning the workflow red and
+    # generating failure-notification email. The last committed catalog remains
+    # authoritative unless a new candidate passes all checks.
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Update payload metadata from GitHub Releases API
+      - name: Build and validate catalog candidate
+        id: candidate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python scripts/update_payloads.py
-
-      - name: Validate catalog and updater
-        run: python -m unittest discover -s tests -v
-
-      - name: Commit changes when upstream changed
         shell: bash
         run: |
-          if git diff --quiet -- payloads.json upstream_status.json; then
+          set +e
+          rm -f payload_update_diagnostics.log
+
+          (
+            set -euo pipefail
+            python scripts/update_payloads.py
+
+            # Keep the cache-busting v2 source synchronized in the same atomic
+            # catalog update instead of relying on a separate mirror workflow.
+            python - <<'PY'
+          import json
+          data = json.load(open('payloads.json', encoding='utf-8'))
+          data['name'] = "Jason's PS5 GitHub Payloads v2"
+          with open('payloads-v2.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, indent=2, ensure_ascii=False)
+              f.write('\n')
+          PY
+
+            python -m unittest discover -s tests -v
+          ) > payload_update_diagnostics.log 2>&1
+
+          RC=$?
+          cat payload_update_diagnostics.log
+
+          if [ "$RC" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            git checkout -- payloads.json upstream_status.json payloads-v2.json 2>/dev/null || true
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Payload catalog refresh skipped::The updater, GitHub API, or tests hit a transient problem. The last committed payloads.json and payloads-v2.json remain unchanged."
+          fi
+
+          exit 0
+
+      - name: Commit candidate when upstream changed
+        if: steps.candidate.outputs.ready == 'true'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          if git diff --quiet -- payloads.json payloads-v2.json upstream_status.json; then
             echo "No upstream changes."
             exit 0
           fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add payloads.json upstream_status.json
+          git add payloads.json payloads-v2.json upstream_status.json
           git commit -m "Update payload catalog"
-          git push
+          RC=$?
+          if [ "$RC" -ne 0 ]; then
+            echo "::warning title=Catalog commit skipped::Could not create the catalog commit. The existing catalog remains valid."
+            exit 0
+          fi
+
+          git pull --rebase origin main
+          RC=$?
+          if [ "$RC" -ne 0 ]; then
+            git rebase --abort >/dev/null 2>&1 || true
+            echo "::warning title=Catalog publish deferred::Another commit changed main during this refresh. The next scheduled run will recompute the catalog from the latest branch."
+            exit 0
+          fi
+
+          git push origin main
+          RC=$?
+          if [ "$RC" -ne 0 ]; then
+            echo "::warning title=Catalog publish deferred::GitHub rejected or interrupted the push. The next scheduled run will retry from the current main branch."
+          fi
+          exit 0
+
+      - name: Report catalog refresh
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.candidate.outputs.ready }}" = "true" ]; then
+            echo "### Payload catalog refresh completed safely" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### Payload catalog kept the last known-good files"
+              echo "The candidate refresh did not pass all checks, so no catalog files were replaced."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit 0
