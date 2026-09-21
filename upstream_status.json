@@ -149,9 +149,9 @@
   "ProsperoTV": {
     "repo": "blackbearreloaded/ProsperoTV",
     "published": false,
-    "release_tag": "01.000.004",
-    "release_url": "https://github.com/blackbearreloaded/ProsperoTV/releases/tag/01.000.004",
-    "prerelease": true,
+    "release_tag": "01.000.005",
+    "release_url": "https://github.com/blackbearreloaded/ProsperoTV/releases/tag/01.000.005",
+    "prerelease": false,
     "tracked_only": true,
     "assets": [
       "PPSA99003.ffpfsc",
