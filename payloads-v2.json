@@ -13,11 +13,11 @@
     {
       "name": "Pegasus DL",
       "filename": "pegasus_dl.elf",
-      "url": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.9.0/pegasus_dl.elf",
+      "url": "https://github.com/pegasus-ps5/pegasus-dl/releases/download/v1.10.0/pegasus_dl.elf",
       "description": "PS5 payload for direct package downloading and local file management through a web interface.",
-      "version": "v1.9.0",
+      "version": "v1.10.0",
       "category": "Utilities & Tools",
-      "checksum": "6336c626f0fbdef1272cc5d4e0239d7b44bf40f8106679083cf50d4c8e02389b"
+      "checksum": "724b245d8de08e5a16865180fac7f30eda72b94d45c9cc73686d9b2defc33f66"
     },
     {
       "name": "Kylin Core",
