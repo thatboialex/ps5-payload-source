@@ -2,11 +2,11 @@
   "CheatRunner": {
     "repo": "notmaj0r/CheatRunner",
     "published": true,
-    "release_tag": "v0.17",
-    "release_url": "https://github.com/notmaj0r/CheatRunner/releases/tag/v0.17",
+    "release_tag": "v0.17.1",
+    "release_url": "https://github.com/notmaj0r/CheatRunner/releases/tag/v0.17.1",
     "prerelease": false,
     "asset": "CheatRunner.elf",
-    "version": "v0.17"
+    "version": "v0.17.1"
   },
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
