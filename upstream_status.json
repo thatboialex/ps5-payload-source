@@ -2,11 +2,11 @@
   "CheatRunner": {
     "repo": "notmaj0r/CheatRunner",
     "published": true,
-    "release_tag": "v0.17.1",
-    "release_url": "https://github.com/notmaj0r/CheatRunner/releases/tag/v0.17.1",
+    "release_tag": "v0.17.2",
+    "release_url": "https://github.com/notmaj0r/CheatRunner/releases/tag/v0.17.2",
     "prerelease": false,
     "asset": "CheatRunner.elf",
-    "version": "v0.17.1"
+    "version": "v0.17.2"
   },
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
@@ -20,11 +20,11 @@
   "Kylin Core": {
     "repo": "aydencharles/kylin-core-release",
     "published": true,
-    "release_tag": "v1.3.1-community-lite",
-    "release_url": "https://github.com/aydencharles/kylin-core-release/releases/tag/v1.3.1-community-lite",
+    "release_tag": "v2.0.0-community-lite",
+    "release_url": "https://github.com/aydencharles/kylin-core-release/releases/tag/v2.0.0-community-lite",
     "prerelease": false,
     "asset": "kylin-core.elf",
-    "version": "v1.3.1-community-lite"
+    "version": "v2.0.0-community-lite"
   },
   "WBrowser": {
     "repo": "ps5xploit/WBrowser",
