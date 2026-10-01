@@ -62,38 +62,38 @@
   "PS5 BAR Tool - Info": {
     "repo": "c0w-ar/ps5-bar-tool",
     "published": true,
-    "release_tag": "v0.3",
-    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "release_tag": "v0.4",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.4",
     "prerelease": false,
     "asset": "ps5-bar-tool_info.elf",
-    "version": "v0.3"
+    "version": "v0.4"
   },
   "PS5 BAR Tool - Main Segments": {
     "repo": "c0w-ar/ps5-bar-tool",
     "published": true,
-    "release_tag": "v0.3",
-    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "release_tag": "v0.4",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.4",
     "prerelease": false,
     "asset": "ps5-bar-tool_dump_main_segments.elf",
-    "version": "v0.3"
+    "version": "v0.4"
   },
   "PS5 BAR Tool - Full Dump": {
     "repo": "c0w-ar/ps5-bar-tool",
     "published": true,
-    "release_tag": "v0.3",
-    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "release_tag": "v0.4",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.4",
     "prerelease": false,
     "asset": "ps5-bar-tool_dump_all.elf",
-    "version": "v0.3"
+    "version": "v0.4"
   },
   "PS5 BAR Tool - Save Data": {
     "repo": "c0w-ar/ps5-bar-tool",
     "published": true,
-    "release_tag": "v0.3",
-    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.3",
+    "release_tag": "v0.4",
+    "release_url": "https://github.com/c0w-ar/ps5-bar-tool/releases/tag/v0.4",
     "prerelease": false,
     "asset": "ps5-bar-tool_savedata.elf",
-    "version": "v0.3"
+    "version": "v0.4"
   },
   "Ghostcontrol": {
     "repo": "thatboialex/ps5-payload-source",

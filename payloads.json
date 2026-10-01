@@ -58,38 +58,38 @@
     {
       "name": "PS5 BAR Tool - Info",
       "filename": "ps5-bar-tool_info.elf",
-      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_info.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.4/ps5-bar-tool_info.elf",
       "description": "Parses PS5 Backup and Restore archive information and logs results locally and remotely.",
-      "version": "v0.3",
+      "version": "v0.4",
       "category": "Backup & Recovery",
-      "checksum": "d599494640529779c4fb2b08f06946c576230c848b88e530bc7b5e33926eb4ce"
+      "checksum": "3980798f45e03332cbf4db01964c183b459f7c836b65757b7a30eec1b642c1ea"
     },
     {
       "name": "PS5 BAR Tool - Main Segments",
       "filename": "ps5-bar-tool_dump_main_segments.elf",
-      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_dump_main_segments.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.4/ps5-bar-tool_dump_main_segments.elf",
       "description": "Parses a PS5 Backup and Restore archive and dumps special/main embedded segments.",
-      "version": "v0.3",
+      "version": "v0.4",
       "category": "Backup & Recovery",
-      "checksum": "2c3b053c206cd39e778f2fc032637bcd69cab4ac58a15ffac462dddcb523642c"
+      "checksum": "9edce448b42906d6943650f6d223a714f1af3220e20a1b0aac28e2832b82db90"
     },
     {
       "name": "PS5 BAR Tool - Full Dump",
       "filename": "ps5-bar-tool_dump_all.elf",
-      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_dump_all.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.4/ps5-bar-tool_dump_all.elf",
       "description": "Dumps supported embedded files from a PS5 Backup and Restore archive to USB.",
-      "version": "v0.3",
+      "version": "v0.4",
       "category": "Backup & Recovery",
-      "checksum": "d4ce2a9d07f7ece1908523f2390e2d846c4f1ed9c1d5580e489532570b20e6ee"
+      "checksum": "c85a14c7305ab696fccc4e09ce8e8aca92d3f213bc8bebf9eadee16a70f37319"
     },
     {
       "name": "PS5 BAR Tool - Save Data",
       "filename": "ps5-bar-tool_savedata.elf",
-      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.3/ps5-bar-tool_savedata.elf",
+      "url": "https://github.com/c0w-ar/ps5-bar-tool/releases/download/v0.4/ps5-bar-tool_savedata.elf",
       "description": "Parses PS5 Backup and Restore archives and dumps PS4/PS5 save-data files.",
-      "version": "v0.3",
+      "version": "v0.4",
       "category": "Backup & Recovery",
-      "checksum": "55203af40dac4a5b72f8f7350987104ae9a3ac59d4bec45638d6dfec873131b2"
+      "checksum": "92047accc186e47af0c9d685d86ec3ec080c37a2cfccddf5e43c20ebd8c1e0bf"
     },
     {
       "name": "Ghostcontrol",
