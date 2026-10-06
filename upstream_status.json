@@ -135,12 +135,11 @@
   "ProsperoRadio": {
     "repo": "blackbearreloaded/ProsperoRadio",
     "published": false,
-    "release_tag": "01.000.005",
-    "release_url": "https://github.com/blackbearreloaded/ProsperoRadio/releases/tag/01.000.005",
+    "release_tag": "01.000.010",
+    "release_url": "https://github.com/blackbearreloaded/ProsperoRadio/releases/tag/01.000.010",
     "prerelease": false,
     "tracked_only": true,
     "assets": [
-      "PPSA99001.ffpfsc",
       "PPSA99001.zip",
       "SHA256SUMS"
     ],
