@@ -4,11 +4,11 @@
     {
       "name": "CheatRunner",
       "filename": "CheatRunner.elf",
-      "url": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.17.2/CheatRunner.elf",
+      "url": "https://github.com/notmaj0r/CheatRunner/releases/download/v0.18/CheatRunner.elf",
       "description": "Web-based PS5 cheat trainer for already-jailbroken PS5 consoles.",
-      "version": "v0.17.2",
+      "version": "v0.18",
       "category": "Cheats & Trainers",
-      "checksum": "36ad03e236e6603aaaf05d95ed3399c7b54475a9bceba085cbe02899bc88ae0f"
+      "checksum": "4ae1ea4e37b2e67d5487355ddf671f166861ed6dceea348c048ad060770c0140"
     },
     {
       "name": "Pegasus DL",
