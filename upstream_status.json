@@ -11,11 +11,11 @@
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
     "published": true,
-    "release_tag": "v1.10.1",
-    "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/v1.10.1",
+    "release_tag": "v1.11.0",
+    "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/v1.11.0",
     "prerelease": false,
     "asset": "pegasus_dl.elf",
-    "version": "v1.10.1"
+    "version": "v1.11.0"
   },
   "Kylin Core": {
     "repo": "aydencharles/kylin-core-release",
@@ -148,8 +148,8 @@
   "ProsperoTV": {
     "repo": "blackbearreloaded/ProsperoTV",
     "published": false,
-    "release_tag": "01.000.040",
-    "release_url": "https://github.com/blackbearreloaded/ProsperoTV/releases/tag/01.000.040",
+    "release_tag": "01.000.050",
+    "release_url": "https://github.com/blackbearreloaded/ProsperoTV/releases/tag/01.000.050",
     "prerelease": false,
     "tracked_only": true,
     "assets": [
