@@ -126,11 +126,11 @@
   "OnionHEN": {
     "repo": "aydencharles/onionHEN",
     "published": true,
-    "release_tag": "v0.0.13",
-    "release_url": "https://github.com/aydencharles/onionHEN/releases/tag/v0.0.13",
+    "release_tag": "v0.9.0",
+    "release_url": "https://github.com/aydencharles/onionHEN/releases/tag/v0.9.0",
     "prerelease": false,
     "asset": "OnionHEN.elf",
-    "version": "v0.0.13"
+    "version": "v0.9.0"
   },
   "ProsperoRadio": {
     "repo": "blackbearreloaded/ProsperoRadio",
