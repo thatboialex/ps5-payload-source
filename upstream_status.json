@@ -135,21 +135,13 @@
   "ProsperoRadio": {
     "repo": "blackbearreloaded/ProsperoRadio",
     "published": false,
-    "release_tag": "01.000.010",
-    "release_url": "https://github.com/blackbearreloaded/ProsperoRadio/releases/tag/01.000.010",
-    "prerelease": false,
-    "tracked_only": true,
-    "assets": [
-      "PPSA99001.zip",
-      "SHA256SUMS"
-    ],
-    "reason": "ProsperoRadio is a complete PS5 native application distributed as FFPFSC or a full title-folder ZIP, not a standalone PLDMGR payload ELF."
+    "reason": "GitHub API HTTP 404 while checking selected release."
   },
   "ProsperoTV": {
     "repo": "blackbearreloaded/ProsperoTV",
     "published": false,
     "release_tag": "01.000.070",
-    "release_url": "https://github.com/blackbearreloaded/ProsperoTV/releases/tag/01.000.070",
+    "release_url": "https://github.com/ThatGuyKalvin/ProsperoTV/releases/tag/01.000.070",
     "prerelease": false,
     "tracked_only": true,
     "assets": [
