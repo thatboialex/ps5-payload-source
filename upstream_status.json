@@ -153,16 +153,7 @@
   "PS5 Native App Boilerplate": {
     "repo": "blackbearreloaded/ps5-native-app-boilerplate",
     "published": false,
-    "release_tag": "01.000.000",
-    "release_url": "https://github.com/blackbearreloaded/ps5-native-app-boilerplate/releases/tag/01.000.000",
-    "prerelease": false,
-    "tracked_only": true,
-    "assets": [
-      "PPSA99999.ffpfsc",
-      "PPSA99999.zip",
-      "SHA256SUMS"
-    ],
-    "reason": "This repository is a native application development template and its releases are complete title packages rather than PLDMGR payload ELFs."
+    "reason": "GitHub API HTTP 404 while checking selected release."
   },
   "RetroArch PS5": {
     "repo": "tsuramatsu1/retroarch",
