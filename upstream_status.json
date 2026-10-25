@@ -11,11 +11,11 @@
   "Pegasus DL": {
     "repo": "pegasus-ps5/pegasus-dl",
     "published": true,
-    "release_tag": "v1.11.0",
-    "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/v1.11.0",
+    "release_tag": "native-v2.0.3",
+    "release_url": "https://github.com/pegasus-ps5/pegasus-dl/releases/tag/native-v2.0.3",
     "prerelease": false,
-    "asset": "pegasus_dl.elf",
-    "version": "v1.11.0"
+    "reason": "No unambiguous PLDMGR-compatible .elf/.bin/.lua asset found in the selected GitHub release.",
+    "retained_previous_entry": true
   },
   "Kylin Core": {
     "repo": "aydencharles/kylin-core-release",
