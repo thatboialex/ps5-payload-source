@@ -44,11 +44,11 @@
   "Kura Loader": {
     "repo": "NookieAI/kura",
     "published": true,
-    "release_tag": "v1.6.50",
-    "release_url": "https://github.com/NookieAI/kura/releases/tag/v1.6.50",
+    "release_tag": "v1.6.51",
+    "release_url": "https://github.com/NookieAI/kura/releases/tag/v1.6.51",
     "prerelease": false,
     "asset": "kura-loader.elf",
-    "version": "v1.6.50"
+    "version": "v1.6.51"
   },
   "SVT Play Installer": {
     "repo": "ps5-payload-dev/svtplay",
