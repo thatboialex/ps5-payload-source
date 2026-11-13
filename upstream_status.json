@@ -170,13 +170,6 @@
   "JTPlay": {
     "repo": "ps5-payload-dev/jtplay",
     "published": false,
-    "release_tag": "v0.2",
-    "release_url": "https://github.com/ps5-payload-dev/jtplay/releases/tag/v0.2",
-    "prerelease": false,
-    "tracked_only": true,
-    "assets": [
-      "JTPlay.zip"
-    ],
-    "reason": "Upstream ships JTPlay.zip containing the executable plus required assets, fonts, plugins and CA bundle. It is a Homebrew Launcher package rather than a standalone PLDMGR payload."
+    "reason": "GitHub API HTTP 404 while checking selected release."
   }
 }
